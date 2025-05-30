@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Wifi Connect</string>
+
+    <string name="action_request_wifi_connection">br.org.cesar.wificonnect.action.REQUEST_WIFI_CONNECTION</string>
 </resources>

@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,18 +9,28 @@ plugins {
     alias(libs.plugins.google.hilt)
 }
 
+val localProperties = Properties().apply {
+    load(FileInputStream(rootProject.file("local.properties")))
+}
+
+val wifiSsid = localProperties.getProperty("wifi.ssid")
+val wifiPsk = localProperties.getProperty("wifi.pks")
+
 android {
     namespace = "br.org.cesar.wificonnect"
     compileSdk = 35
 
     defaultConfig {
         applicationId = "br.org.cesar.wificonnect"
-        minSdk = 24
+        minSdk = 29
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "WIFI_SSID", "\"$wifiSsid\"")
+        buildConfigField("String", "WIFI_PKS", "\"$wifiPsk\"")
     }
 
     buildTypes {
@@ -37,6 +50,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -53,6 +67,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
