@@ -2,8 +2,8 @@
 
 This is a Proof of Concept (POC) project for connecting to a Wi-Fi network programmatically.
 
-# Setup
-Before running the project, you need to configure the Wi-Fi network details by adding them to the local.properties file in the project root directory.
+## Setup
+Before running the project, you need to configure the Wi-Fi network details by adding them to the `local.properties` file in the project root directory.
 
 **Required Properties:**
 
@@ -38,7 +38,7 @@ If your app needs to connect to Wi-Fi networks, use the following alternative me
 
 source: https://developer.android.com/about/versions/10/privacy/changes#configure-wifi
 
-## Using CTS Verifier
+## CTS Verifier
 
 The Android Compatibility Test Suite Verifier (CTS Verifier) supplements the Compatibility Test Suite (CTS). While CTS checks APIs and functions that can be automated, CTS Verifier provides tests for APIs and functions that can't be tested on a stationary device without manual input or positioning, such as audio quality, touchscreen, accelerometer, and camera.
 

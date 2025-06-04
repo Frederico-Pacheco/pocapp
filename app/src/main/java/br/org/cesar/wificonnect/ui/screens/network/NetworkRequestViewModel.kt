@@ -10,6 +10,7 @@ import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import br.org.cesar.wificonnect.domain.usecase.network.NetworkRequestUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -103,6 +104,8 @@ class NetworkRequestViewModel @Inject constructor(
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     private fun performWifiRequest(ssid: String?, psk: String?, listener: UseCaseListener?) {
+        updateState(useCaseStatus = UseCaseStatus.NOT_EXECUTED)
+
         if (!ssid.isNullOrEmpty() and !psk.isNullOrEmpty()) {
             viewModelScope.launch(dispatcherProvider.io) {
                 val requestDuration =
@@ -112,6 +115,7 @@ class NetworkRequestViewModel @Inject constructor(
                     requestDuration = requestDuration
                 )
 
+                delay(10000)
                 mNetworkRequestUseCase.unregisterNetworkCallback()
             }
         }
