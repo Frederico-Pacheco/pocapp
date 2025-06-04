@@ -36,17 +36,11 @@ class NetworkRequestViewModel @Inject constructor(
         }
 
         override fun onUseCaseSuccess() {
-            updateState(
-                isLoading = false,
-                useCaseStatus = UseCaseStatus.SUCCESS,
-            )
+            // TODO("Not yet implemented")
         }
 
         override fun onUseCaseFailed(reason: String?) {
-            updateState(
-                isLoading = false,
-                useCaseStatus = UseCaseStatus.ERROR,
-            )
+            // TODO("Not yet implemented")
         }
     }
 
@@ -80,7 +74,7 @@ class NetworkRequestViewModel @Inject constructor(
         wifiSsid: String? = null,
         wifiPsk: String? = null,
         isWifiEnabled: Boolean? = null,
-        requestDuration: Long? = null,
+        requestDurations: List<Long?>? = null,
         useCaseListener: UseCaseListener? = null,
         listenerMessage: String? = null,
         useCaseStatus: UseCaseStatus? = null,
@@ -92,7 +86,7 @@ class NetworkRequestViewModel @Inject constructor(
                 wifiSsid = wifiSsid ?: currentState.wifiSsid,
                 wifiPsk = wifiPsk ?: currentState.wifiPsk,
                 isWifiEnabled = isWifiEnabled ?: currentState.isWifiEnabled,
-                requestDuration = requestDuration ?: currentState.requestDuration,
+                requestDurations = requestDurations ?: currentState.requestDurations,
                 useCaseListener = useCaseListener ?: currentState.useCaseListener,
                 listenerMessage = listenerMessage ?: currentState.listenerMessage,
                 useCaseStatus = useCaseStatus ?: currentState.useCaseStatus,
@@ -106,18 +100,31 @@ class NetworkRequestViewModel @Inject constructor(
     private fun performWifiRequest(ssid: String?, psk: String?, listener: UseCaseListener?) {
         updateState(useCaseStatus = UseCaseStatus.NOT_EXECUTED)
 
-        if (!ssid.isNullOrEmpty() and !psk.isNullOrEmpty()) {
-            viewModelScope.launch(dispatcherProvider.io) {
-                val requestDuration =
-                    mNetworkRequestUseCase.measureNetworkRequest(ssid!!, psk!!, listener)
-                updateState(
-                    isLoading = false,
-                    requestDuration = requestDuration
-                )
+        val executionCount = 2
+        val requestDurations: MutableList<Long?> = mutableListOf()
 
-                delay(10000)
-                mNetworkRequestUseCase.unregisterNetworkCallback()
+        viewModelScope.launch(dispatcherProvider.io) {
+            for (index in 1..executionCount) {
+                val requestDuration =
+                    mNetworkRequestUseCase.measureNetworkRequest(ssid, psk, listener) ?: break
+
+                val delayTime = 10000L
+                listener?.onUseCaseMsgReceived("Successfully connected! Waiting ${delayTime/1000} seconds...")
+                delay(delayTime)
+                mNetworkRequestUseCase.unregisterNetworkCallback(listener)
+
+                requestDurations.add(requestDuration)
             }
+
+            updateState(
+                isLoading = false,
+                requestDurations = requestDurations,
+                useCaseStatus = if (requestDurations.all { it != null}) {
+                    UseCaseStatus.SUCCESS
+                } else {
+                    UseCaseStatus.ERROR
+                },
+            )
         }
     }
 
