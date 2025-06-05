@@ -1,6 +1,7 @@
 package br.org.cesar.wificonnect.ui.screens.network
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Settings
@@ -35,13 +36,30 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
+import br.org.cesar.wificonnect.service.PocAccessibilityService
 import br.org.cesar.wificonnect.ui.components.PrefsItem
+import br.org.cesar.wificonnect.ui.navigation.AppNavDestination
+import br.org.cesar.wificonnect.ui.navigation.NavManager
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
 @Composable
-fun NetworkRequestScreenRoot() {
+fun NetworkRequestScreenRoot(
+    navManager: NavManager,
+    navRoute: AppNavDestination.NetworkRequest = AppNavDestination.NetworkRequest(),
+) {
     val viewModel = hiltViewModel<NetworkRequestViewModel>()
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (navRoute.autoRun) {
+            viewModel.onUiEvent(
+                NetworkRequestUiEvent.WiFiRequest(
+                    navRoute.wifiSsid,
+                    navRoute.wifiPsk
+                )
+            )
+        }
+    }
 
     NetworkRequestScreen(
         uiState = uiState,
@@ -57,20 +75,13 @@ private fun NetworkRequestScreen(
 ) {
     RequestPermission(uiState, onUiEvent)
 
-    val context = LocalContext.current
-    LaunchedEffect(uiState.isWifiEnabled) {
-        if (!uiState.isWifiEnabled) {
-            val panelIntent = Intent(Settings.Panel.ACTION_WIFI)
-            context.startActivity(panelIntent)
-        }
-    }
+    // FIXME: call NetworkRequestSetup only on action button click
+    NetworkRequestSetup(uiState, onUiEvent)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = "Use Cases")
-                }
+                title = { Text("Use Cases") }
             )
         }
     ) { innerPadding ->
@@ -83,61 +94,105 @@ private fun NetworkRequestScreen(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val secondaryText = if (UseCaseStatus.SUCCESS != uiState.useCaseStatus) {
+                    uiState.listenerMessage
+                } else {
+                    uiState.getFormattedRequestDuration()
+                }
+
                 PrefsItem(
-                    icon = {
-                        when (uiState.useCaseStatus) {
-                            UseCaseStatus.SUCCESS -> {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = "Success"
-                                )
-                            }
-
-                            UseCaseStatus.ERROR -> {
-                                Icon(
-                                    Icons.Default.Close,
-                                    tint = Color.Red,
-                                    contentDescription = "Error"
-                                )
-                            }
-
-                            UseCaseStatus.NOT_EXECUTED -> {}
-                        }
-                    },
+                    icon = { NetworkRequestStatusIcon(uiState) },
                     text = { Text("Request Wi-Fi Connection") },
-                    secondaryText = {
-                        Text(
-                            if (UseCaseStatus.SUCCESS != uiState.useCaseStatus) {
-                                uiState.listenerMessage
-                            } else {
-                                uiState.getFormattedRequestDuration()
-                            }
-                        )
-                    },
-                    trailing = {
-                        IconButton(
-                            onClick = {
-                                onUiEvent(
-                                    NetworkRequestUiEvent.WiFiRequest(
-                                        uiState.wifiSsid,
-                                        uiState.wifiPsk,
-                                        uiState.useCaseListener
-                                    )
-                                )
-                            }
-                        ) {
-                            if (uiState.isLoading) {
-                                CircularProgressIndicator()
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Run Use Case"
-                                )
-                            }
-                        }
-                    }
+                    secondaryText = { Text(secondaryText) },
+                    trailing = { NetworkRequestActionIcon(uiState, onUiEvent) }
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun NetworkRequestStatusIcon(
+    uiState: NetworkRequestUiState,
+) {
+    when (uiState.useCaseStatus) {
+        UseCaseStatus.SUCCESS -> {
+            Icon(
+                Icons.Default.Check,
+                contentDescription = "Success"
+            )
+        }
+
+        UseCaseStatus.ERROR -> {
+            Icon(
+                Icons.Default.Close,
+                tint = Color.Red,
+                contentDescription = "Error"
+            )
+        }
+
+        UseCaseStatus.NOT_EXECUTED -> {}
+    }
+}
+
+@Composable
+private fun NetworkRequestActionIcon(
+    uiState: NetworkRequestUiState,
+    onUiEvent: (NetworkRequestUiEvent) -> Unit
+) {
+    IconButton(
+        onClick = {
+            onUiEvent(
+                NetworkRequestUiEvent.WiFiRequest(
+                    uiState.wifiSsid,
+                    uiState.wifiPsk
+                )
+            )
+        }
+    ) {
+        if (uiState.isLoading) {
+            CircularProgressIndicator()
+        } else {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = "Run Use Case"
+            )
+        }
+    }
+}
+
+@Composable
+private fun NetworkRequestSetup(
+    uiState: NetworkRequestUiState,
+    onUiEvent: (NetworkRequestUiEvent) -> Unit
+) {
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.isWifiEnabled) {
+        if (!uiState.isWifiEnabled) {
+            val panelIntent = Intent(Settings.Panel.ACTION_WIFI)
+            context.startActivity(panelIntent)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val expectedComponentName = ComponentName(context, PocAccessibilityService::class.java)
+        val enabledServicesSetting = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+
+        onUiEvent(
+            NetworkRequestUiEvent.VerifyAccessibilityServiceEnabled(
+                enabledServicesSetting, expectedComponentName
+            )
+        )
+    }
+
+    LaunchedEffect(uiState.isAccessibilityServiceEnabled) {
+        if (!uiState.isAccessibilityServiceEnabled) {
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            //context.startActivity(intent) FIXME: launch intent
         }
     }
 }
@@ -174,6 +229,9 @@ private fun RequestPermission(
 @Composable
 private fun NetworkRequestScreenPreview() {
     DesignSystemTheme {
-        NetworkRequestScreenRoot()
+        NetworkRequestScreen(
+            uiState = NetworkRequestUiState(),
+            onUiEvent = {}
+        )
     }
 }

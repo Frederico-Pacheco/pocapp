@@ -1,16 +1,20 @@
 package br.org.cesar.wificonnect.ui.screens.network
 
-import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
+import android.content.ComponentName
 
 sealed class NetworkRequestUiEvent {
 
     data object VerifyWifiEnabled : NetworkRequestUiEvent()
+
+    data class VerifyAccessibilityServiceEnabled(
+        val serviceSetting: String?,
+        val expectedComponentName: ComponentName
+    ) : NetworkRequestUiEvent()
 
     data class UpdatePermissionStatus(val permissionStatus: Int) : NetworkRequestUiEvent()
 
     data class WiFiRequest(
         val ssid: String?,
         val psk: String?,
-        val listener: UseCaseListener? = null
     ) : NetworkRequestUiEvent()
 }

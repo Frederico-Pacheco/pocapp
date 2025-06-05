@@ -1,6 +1,9 @@
 package br.org.cesar.wificonnect.ui.screens.network
 
 import android.Manifest
+import android.content.ComponentName
+import android.text.TextUtils
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,12 +24,12 @@ import javax.inject.Inject
 @HiltViewModel
 class NetworkRequestViewModel @Inject constructor(
     private val mNetworkRequestUseCase: NetworkRequestUseCase,
-    private val dispatcherProvider: DispatcherProvider
+    private val mDispatcherProvider: DispatcherProvider
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(NetworkRequestUiState())
     val uiState: StateFlow<NetworkRequestUiState> = _uiState.asStateFlow()
 
-    private val useCaseListener = object : UseCaseListener {
+    private val mUseCaseListener = object : UseCaseListener {
         override fun onUseCaseStarted() {
             updateState(isLoading = true)
         }
@@ -46,7 +49,6 @@ class NetworkRequestViewModel @Inject constructor(
 
 
     init {
-        updateState(useCaseListener = useCaseListener)
         updateWifiConfig()
         onUiEvent(NetworkRequestUiEvent.VerifyWifiEnabled)
     }
@@ -58,14 +60,17 @@ class NetworkRequestViewModel @Inject constructor(
                 isWifiEnabled = mNetworkRequestUseCase.isWifiEnabled()
             )
 
+            is NetworkRequestUiEvent.VerifyAccessibilityServiceEnabled -> {
+                isAccessibilityServiceEnabled(event.serviceSetting, event.expectedComponentName)
+            }
+
             is NetworkRequestUiEvent.UpdatePermissionStatus -> updateState(
                 permissionStatus = event.permissionStatus
             )
 
             is NetworkRequestUiEvent.WiFiRequest -> performWifiRequest(
                 event.ssid,
-                event.psk,
-                event.listener
+                event.psk
             )
         }
     }
@@ -75,11 +80,11 @@ class NetworkRequestViewModel @Inject constructor(
         wifiPsk: String? = null,
         isWifiEnabled: Boolean? = null,
         requestDurations: List<Long?>? = null,
-        useCaseListener: UseCaseListener? = null,
         listenerMessage: String? = null,
         useCaseStatus: UseCaseStatus? = null,
         permissionStatus: Int? = null,
-        isLoading: Boolean? = null
+        isLoading: Boolean? = null,
+        isAccessibilityServiceEnabled: Boolean? = null,
     ) {
         _uiState.update { currentState ->
             currentState.copy(
@@ -87,31 +92,59 @@ class NetworkRequestViewModel @Inject constructor(
                 wifiPsk = wifiPsk ?: currentState.wifiPsk,
                 isWifiEnabled = isWifiEnabled ?: currentState.isWifiEnabled,
                 requestDurations = requestDurations ?: currentState.requestDurations,
-                useCaseListener = useCaseListener ?: currentState.useCaseListener,
                 listenerMessage = listenerMessage ?: currentState.listenerMessage,
                 useCaseStatus = useCaseStatus ?: currentState.useCaseStatus,
                 permissionStatus = permissionStatus ?: currentState.permissionStatus,
-                isLoading = isLoading ?: currentState.isLoading
+                isLoading = isLoading ?: currentState.isLoading,
+                isAccessibilityServiceEnabled = isAccessibilityServiceEnabled
+                    ?: currentState.isAccessibilityServiceEnabled
             )
         }
     }
 
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    private fun performWifiRequest(ssid: String?, psk: String?, listener: UseCaseListener?) {
-        updateState(useCaseStatus = UseCaseStatus.NOT_EXECUTED)
+    private fun isAccessibilityServiceEnabled(
+        serviceSetting: String?,
+        expectedComponentName: ComponentName
+    ) {
+        var isEnabled = false
 
-        val executionCount = 2
+        serviceSetting?.let { serviceName ->
+            val colonSplitter = TextUtils.SimpleStringSplitter(':')
+            colonSplitter.setString(serviceName)
+
+            while (colonSplitter.hasNext()) {
+                val componentName = ComponentName.unflattenFromString(colonSplitter.next())
+                if (componentName != null && componentName == expectedComponentName) {
+                    isEnabled = true
+                    break
+                }
+            }
+        }
+
+        updateState(isAccessibilityServiceEnabled = isEnabled)
+    }
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun performWifiRequest(
+        ssid: String?,
+        psk: String?,
+        executionCount: Int = 2,
+    ) {
+        Log.d(TAG, "performWifiRequest")
+
+        updateState(useCaseStatus = UseCaseStatus.NOT_EXECUTED)
         val requestDurations: MutableList<Long?> = mutableListOf()
 
-        viewModelScope.launch(dispatcherProvider.io) {
+        viewModelScope.launch(mDispatcherProvider.io) {
             for (index in 1..executionCount) {
                 val requestDuration =
-                    mNetworkRequestUseCase.measureNetworkRequest(ssid, psk, listener) ?: break
+                    mNetworkRequestUseCase.measureNetworkRequest(ssid, psk, mUseCaseListener)
+                        ?: break
 
                 val delayTime = 10000L
-                listener?.onUseCaseMsgReceived("Successfully connected! Waiting ${delayTime/1000} seconds...")
+                mUseCaseListener.onUseCaseMsgReceived("Successfully connected! Waiting ${delayTime / 1000} seconds...")
                 delay(delayTime)
-                mNetworkRequestUseCase.unregisterNetworkCallback(listener)
+                mNetworkRequestUseCase.unregisterNetworkCallback(mUseCaseListener)
 
                 requestDurations.add(requestDuration)
             }
@@ -119,7 +152,7 @@ class NetworkRequestViewModel @Inject constructor(
             updateState(
                 isLoading = false,
                 requestDurations = requestDurations,
-                useCaseStatus = if (requestDurations.all { it != null}) {
+                useCaseStatus = if (requestDurations.size > 0 && requestDurations.all { it != null }) {
                     UseCaseStatus.SUCCESS
                 } else {
                     UseCaseStatus.ERROR
@@ -135,5 +168,9 @@ class NetworkRequestViewModel @Inject constructor(
             wifiSsid = currentState.wifiSsid ?: BuildConfig.WIFI_SSID,
             wifiPsk = currentState.wifiPsk ?: BuildConfig.WIFI_PKS
         )
+    }
+
+    companion object {
+        private val TAG = NetworkRequestViewModel::class.java.simpleName
     }
 }

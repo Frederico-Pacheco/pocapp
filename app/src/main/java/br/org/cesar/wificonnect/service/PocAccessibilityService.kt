@@ -16,6 +16,7 @@ class PocAccessibilityService : AccessibilityService() {
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
                     handleSystemUiPopup(rootInActiveWindow)
                 }
+
                 else -> {}
             }
         }
@@ -30,10 +31,14 @@ class PocAccessibilityService : AccessibilityService() {
 
         val nodes = rootNode.findAccessibilityNodeInfosByText("Conectar")
         if (nodes.isNullOrEmpty()) {
-            Log.e("AccessibilityService", "Nenhum botão 'Conectar' encontrado")
+            Log.e(TAG, "'Connect' button not found")
             return
         }
 
         nodes[0].performAction(AccessibilityNodeInfo.ACTION_CLICK)
+    }
+
+    companion object {
+        private val TAG = PocAccessibilityService::class.java.simpleName
     }
 }

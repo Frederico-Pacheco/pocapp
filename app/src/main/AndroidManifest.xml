@@ -46,7 +46,9 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <receiver android:name=".receiver.NetworkRequestReceiver" android:exported="true">
+        <receiver android:name=".receiver.NetworkRequestReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="br.org.cesar.wificonnect.action.REQUEST_WIFI_CONNECTION" />
             </intent-filter>
