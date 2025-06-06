@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.network
+package br.org.cesar.wificonnect.ui.screens.tiles.network
 
 import android.content.ComponentName
 

@@ -44,7 +44,9 @@ class MainActivity : ComponentActivity() {
 
     private fun navigateToNetworkRequest(ssid: String?, psk: String?) {
         if (ssid != null && psk != null) {
-            navController?.navigate(AppNavDestination.NetworkRequest(true, ssid, psk)) {
+            val networkRequestRoute = AppNavDestination.NetworkRequest(true, ssid, psk)
+
+            navController?.navigate(networkRequestRoute) {
                 launchSingleTop = true
             }
         }

@@ -4,20 +4,25 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import br.org.cesar.wificonnect.ui.screens.network.NetworkRequestScreenRoot
+import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
+import br.org.cesar.wificonnect.ui.screens.UseCaseListScreenRoot
 
 fun NavGraphBuilder.appNavGraph(
     navManager: NavManager,
 ) {
     navigation<AppNavDestination.Root>(
-        startDestination = AppNavDestination.NetworkRequest()
+        startDestination = AppNavDestination.UseCaseList
     ) {
+        composable<AppNavDestination.UseCaseList> {
+            UseCaseListScreenRoot(navManager)
+        }
+
         composable<AppNavDestination.NetworkRequest> { backStackEntry ->
             val route = backStackEntry.toRoute<AppNavDestination.NetworkRequest>()
 
-            NetworkRequestScreenRoot(
+            UseCaseListScreenRoot(
                 navManager = navManager,
-                navRoute = route
+                routes = UseCaseRouteMap(networkRequestRoute = route)
             )
         }
     }

@@ -7,8 +7,11 @@ sealed interface AppNavDestination {
     data object Root : AppNavDestination
 
     @Serializable
+    data object UseCaseList : AppNavDestination
+
+    @Serializable
     data class NetworkRequest(
-        val autoRun: Boolean = false,
+        var autoRun: Boolean = false,
         val wifiSsid: String? = null,
         val wifiPsk: String? = null
     ) : AppNavDestination

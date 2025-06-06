@@ -1,8 +1,7 @@
-package br.org.cesar.wificonnect.ui.screens.network
+package br.org.cesar.wificonnect.ui.screens.tiles.network
 
 import android.Manifest
 import android.content.ComponentName
-import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
@@ -11,6 +10,7 @@ import br.org.cesar.wificonnect.BuildConfig
 import br.org.cesar.wificonnect.common.dispatcher.DispatcherProvider
 import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
+import br.org.cesar.wificonnect.domain.usecase.accessibility.AccessibilityServiceUseCase
 import br.org.cesar.wificonnect.domain.usecase.network.NetworkRequestUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -31,7 +31,7 @@ class NetworkRequestViewModel @Inject constructor(
 
     private val mUseCaseListener = object : UseCaseListener {
         override fun onUseCaseStarted() {
-            updateState(isLoading = true)
+            updateState(isRunning = true)
         }
 
         override fun onUseCaseMsgReceived(msg: String) {
@@ -83,7 +83,7 @@ class NetworkRequestViewModel @Inject constructor(
         listenerMessage: String? = null,
         useCaseStatus: UseCaseStatus? = null,
         permissionStatus: Int? = null,
-        isLoading: Boolean? = null,
+        isRunning: Boolean? = null,
         isAccessibilityServiceEnabled: Boolean? = null,
     ) {
         _uiState.update { currentState ->
@@ -95,7 +95,7 @@ class NetworkRequestViewModel @Inject constructor(
                 listenerMessage = listenerMessage ?: currentState.listenerMessage,
                 useCaseStatus = useCaseStatus ?: currentState.useCaseStatus,
                 permissionStatus = permissionStatus ?: currentState.permissionStatus,
-                isLoading = isLoading ?: currentState.isLoading,
+                isRunning = isRunning ?: currentState.isRunning,
                 isAccessibilityServiceEnabled = isAccessibilityServiceEnabled
                     ?: currentState.isAccessibilityServiceEnabled
             )
@@ -106,29 +106,19 @@ class NetworkRequestViewModel @Inject constructor(
         serviceSetting: String?,
         expectedComponentName: ComponentName
     ) {
-        var isEnabled = false
-
-        serviceSetting?.let { serviceName ->
-            val colonSplitter = TextUtils.SimpleStringSplitter(':')
-            colonSplitter.setString(serviceName)
-
-            while (colonSplitter.hasNext()) {
-                val componentName = ComponentName.unflattenFromString(colonSplitter.next())
-                if (componentName != null && componentName == expectedComponentName) {
-                    isEnabled = true
-                    break
-                }
-            }
-        }
-
-        updateState(isAccessibilityServiceEnabled = isEnabled)
+        updateState(
+            isAccessibilityServiceEnabled = AccessibilityServiceUseCase.isAccessibilityServiceEnabled(
+                serviceSetting,
+                expectedComponentName
+            )
+        )
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     private fun performWifiRequest(
         ssid: String?,
         psk: String?,
-        executionCount: Int = 2,
+        interactionCount: Int = 2,
     ) {
         Log.d(TAG, "performWifiRequest")
 
@@ -136,7 +126,7 @@ class NetworkRequestViewModel @Inject constructor(
         val requestDurations: MutableList<Long?> = mutableListOf()
 
         viewModelScope.launch(mDispatcherProvider.io) {
-            for (index in 1..executionCount) {
+            for (index in 1..interactionCount) {
                 val requestDuration =
                     mNetworkRequestUseCase.measureNetworkRequest(ssid, psk, mUseCaseListener)
                         ?: break
@@ -150,7 +140,7 @@ class NetworkRequestViewModel @Inject constructor(
             }
 
             updateState(
-                isLoading = false,
+                isRunning = false,
                 requestDurations = requestDurations,
                 useCaseStatus = if (requestDurations.size > 0 && requestDurations.all { it != null }) {
                     UseCaseStatus.SUCCESS

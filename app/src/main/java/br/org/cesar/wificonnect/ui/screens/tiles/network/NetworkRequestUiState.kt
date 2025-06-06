@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.network
+package br.org.cesar.wificonnect.ui.screens.tiles.network
 
 import android.content.pm.PackageManager
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
@@ -12,8 +12,8 @@ data class NetworkRequestUiState(
     val listenerMessage: String = "",
     val useCaseStatus: UseCaseStatus = UseCaseStatus.NOT_EXECUTED,
     val permissionStatus: Int = PackageManager.PERMISSION_DENIED,
-    val isLoading: Boolean = false,
-    val isAccessibilityServiceEnabled: Boolean = false,
+    val isRunning: Boolean = false,
+    val isAccessibilityServiceEnabled: Boolean? = null,
 ) {
     fun getFormattedRequestDuration(): String {
         val formatter = DecimalFormat("#.###")
