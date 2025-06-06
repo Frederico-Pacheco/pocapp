@@ -29,13 +29,18 @@ class NetworkRequestUseCase @Inject constructor(
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    fun measureNetworkRequest(ssid: String, psk: String, listener: UseCaseListener?): Long? {
+    fun measureNetworkRequest(ssid: String?, psk: String?, listener: UseCaseListener?): Long? {
         listener?.onUseCaseStarted()
+
+        if (ssid.isNullOrEmpty() or psk.isNullOrEmpty()) {
+            notifyError("Missing SSID or PSK", listener)
+            return null
+        }
 
         Log.v(TAG, "Scan and find the network: $ssid")
         listener?.onUseCaseMsgReceived("Initiating scan for network: $ssid")
 
-        val testNetwork: ScanResult? = mNetworkScanner.startScanAndFindAMatchingNetwork(ssid)
+        val testNetwork: ScanResult? = mNetworkScanner.startScanAndFindAMatchingNetwork(ssid!!)
         if (testNetwork == null) {
             notifyError(
                 "Unable to initiate scan or find matching network in scan results.",
@@ -47,7 +52,7 @@ class NetworkRequestUseCase @Inject constructor(
         mNetworkCallback = NetworkCallback(CALLBACK_TIMEOUT_MS)
         val networkRequest = NetworkRequest.Builder()
             .addTransportType(TRANSPORT_WIFI)
-            .setNetworkSpecifier(createNetworkSpecifier(testNetwork, psk))
+            .setNetworkSpecifier(createNetworkSpecifier(testNetwork, psk!!))
             .removeCapability(NET_CAPABILITY_INTERNET)
             .build()
 
@@ -73,9 +78,10 @@ class NetworkRequestUseCase @Inject constructor(
         return endTime - startTime
     }
 
-    fun unregisterNetworkCallback() {
+    fun unregisterNetworkCallback(listener: UseCaseListener? = null) {
         mNetworkCallback?.let {
             mConnectivityManager.unregisterNetworkCallback(it)
+            listener?.onUseCaseMsgReceived("Network callback disconnected")
         }
     }
 

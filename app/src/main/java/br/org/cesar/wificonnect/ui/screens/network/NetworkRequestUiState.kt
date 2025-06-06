@@ -9,7 +9,7 @@ data class NetworkRequestUiState(
     val wifiSsid: String? = null,
     val wifiPsk: String? = null,
     val isWifiEnabled: Boolean = false,
-    val requestDuration: Long? = null,
+    val requestDurations: List<Long?> = listOf(),
     val useCaseListener: UseCaseListener? = null,
     val listenerMessage: String = "",
     val useCaseStatus: UseCaseStatus = UseCaseStatus.NOT_EXECUTED,
@@ -18,8 +18,14 @@ data class NetworkRequestUiState(
 ) {
     fun getFormattedRequestDuration(): String {
         val formatter = DecimalFormat("#.###")
-        return requestDuration?.let {
-            "Duration: ${formatter.format(it)} ms"
-        } ?: ""
+        formatter.groupingSize = 3
+        formatter.isGroupingUsed = true
+
+        if (requestDurations.size > 1) {
+            return "1st: ${formatter.format(requestDurations[0])} ms;\t" +
+                    "2nd: ${formatter.format(requestDurations[1])} ms"
+        }
+
+        return ""
     }
 }
