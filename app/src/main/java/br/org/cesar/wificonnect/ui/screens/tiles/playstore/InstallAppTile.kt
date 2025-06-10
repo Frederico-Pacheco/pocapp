@@ -1,6 +1,5 @@
 package br.org.cesar.wificonnect.ui.screens.tiles.playstore
 
-import android.content.ComponentName
 import android.content.Intent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -17,32 +16,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
-import br.org.cesar.wificonnect.ui.components.EnableAccessibilityService
 import br.org.cesar.wificonnect.ui.components.PrefsItem
 import br.org.cesar.wificonnect.ui.components.RunIconButton
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
 @Composable
-fun InstallAppTileRoot() {
+fun InstallAppTileRoot(
+    onA11yStateCheck: () -> Boolean?,
+) {
     val viewModel = hiltViewModel<InstallAppViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
     InstallAppTile(
         uiState = uiState,
-        onUiEvent = viewModel::onUiEvent
+        onUiEvent = viewModel::onUiEvent,
+        onA11yStateCheck = onA11yStateCheck,
     )
 }
 
 @Composable
 private fun InstallAppTile(
     uiState: InstallAppUiState,
-    onUiEvent: (InstallAppUiEvent) -> Unit
+    onUiEvent: (InstallAppUiEvent) -> Unit,
+    onA11yStateCheck: () -> Boolean?,
 ) {
-    InstallAppSetup(
-        uiState = uiState,
-        onUiEvent = onUiEvent
-    )
-
     val secondaryText = if (UseCaseStatus.SUCCESS != uiState.useCaseStatus) {
         uiState.listenerMessage
     } else {
@@ -53,29 +50,14 @@ private fun InstallAppTile(
         icon = { InstallAppStatusIcon(uiState) },
         text = { Text("Install App") },
         secondaryText = { Text(secondaryText) },
-        trailing = { InstallAppActionIcon(uiState, onUiEvent) }
+        trailing = {
+            InstallAppActionIcon(
+                uiState,
+                onUiEvent,
+                onA11yStateCheck,
+            )
+        }
     )
-}
-
-@Composable
-private fun InstallAppSetup(
-    uiState: InstallAppUiState,
-    onUiEvent: (InstallAppUiEvent) -> Unit
-) {
-    if (uiState.canOpenAccessibilitySettings) {
-        EnableAccessibilityService(
-            isAccessibilityServiceEnabled = uiState.isAccessibilityServiceEnabled,
-            onVerify = { enabledServicesSetting: String?, expectedComponentName: ComponentName ->
-                onUiEvent(
-                    InstallAppUiEvent.VerifyAccessibilityServiceEnabled(
-                        enabledServicesSetting, expectedComponentName
-                    )
-                )
-
-                onUiEvent(InstallAppUiEvent.UpdateAccessibilitySettingsAccess(false))
-            }
-        )
-    }
 }
 
 @Composable
@@ -105,16 +87,17 @@ private fun InstallAppStatusIcon(
 @Composable
 private fun InstallAppActionIcon(
     uiState: InstallAppUiState,
-    onUiEvent: (InstallAppUiEvent) -> Unit
+    onUiEvent: (InstallAppUiEvent) -> Unit,
+    onA11yStateCheck: () -> Boolean?,
 ) {
     val context = LocalContext.current
 
     RunIconButton(
         isRunning = uiState.isRunning,
         onClick = {
+            val isEnabled = onA11yStateCheck()
             onUiEvent(InstallAppUiEvent.Initialize)
-
-            if (uiState.isAccessibilityServiceEnabled == true) {
+            if (isEnabled == true) {
                 onUiEvent(InstallAppUiEvent.RunningStateChanged(true))
                 uiState.packageName?.let { packageName ->
                     val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -123,10 +106,8 @@ private fun InstallAppActionIcon(
                     }
                     context.startActivity(intent)
                 }
-            } else {
-                onUiEvent(InstallAppUiEvent.UpdateAccessibilitySettingsAccess(true))
             }
-        }
+        },
     )
 }
 
@@ -137,7 +118,8 @@ private fun InstallAppTilePreview() {
         Surface {
             InstallAppTile(
                 uiState = InstallAppUiState(),
-                onUiEvent = {}
+                onUiEvent = {},
+                onA11yStateCheck = { false },
             )
         }
     }

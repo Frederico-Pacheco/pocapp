@@ -11,8 +11,6 @@ data class InstallAppUiState(
     val listenerMessage: String = "",
     val useCaseStatus: UseCaseStatus = UseCaseStatus.NOT_EXECUTED,
     val isRunning: Boolean = false,
-    val isAccessibilityServiceEnabled: Boolean? = null,
-    val canOpenAccessibilitySettings: Boolean = false,
 ) {
     fun getFormattedRequestDuration(): String {
         val formatter = DecimalFormat("#.###")

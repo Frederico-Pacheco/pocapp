@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 @Composable
 fun RunIconButton(
     isRunning: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     IconButton(
         onClick = onClick

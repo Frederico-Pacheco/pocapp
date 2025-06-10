@@ -1,7 +1,6 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.network
+package br.org.cesar.wificonnect.ui.screens.tiles.network.wifirequest
 
 import android.Manifest
-import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Settings
@@ -24,7 +23,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
-import br.org.cesar.wificonnect.ui.components.EnableAccessibilityService
 import br.org.cesar.wificonnect.ui.components.PrefsItem
 import br.org.cesar.wificonnect.ui.components.RunIconButton
 import br.org.cesar.wificonnect.ui.navigation.AppNavDestination
@@ -32,6 +30,7 @@ import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
 @Composable
 fun NetworkRequestTileRoot(
+    onA11yStateCheck: () -> Boolean?,
     navRoute: AppNavDestination.NetworkRequest = AppNavDestination.NetworkRequest(),
 ) {
     val viewModel = hiltViewModel<NetworkRequestViewModel>()
@@ -52,19 +51,19 @@ fun NetworkRequestTileRoot(
 
     NetworkRequestTile(
         uiState = uiState,
-        onUiEvent = viewModel::onUiEvent
+        onUiEvent = viewModel::onUiEvent,
+        onA11yStateCheck = onA11yStateCheck
     )
 }
 
 @Composable
 private fun NetworkRequestTile(
     uiState: NetworkRequestUiState,
-    onUiEvent: (NetworkRequestUiEvent) -> Unit
+    onUiEvent: (NetworkRequestUiEvent) -> Unit,
+    onA11yStateCheck: () -> Boolean?,
 ) {
     RequestPermission(uiState, onUiEvent)
-
-    // FIXME: call NetworkRequestSetup only on action button click
-    NetworkRequestSetup(uiState, onUiEvent)
+    NetworkRequestSetup(uiState)
 
     val secondaryText = if (UseCaseStatus.SUCCESS != uiState.useCaseStatus) {
         uiState.listenerMessage
@@ -76,7 +75,9 @@ private fun NetworkRequestTile(
         icon = { NetworkRequestStatusIcon(uiState) },
         text = { Text("Request Wi-Fi Connection") },
         secondaryText = { Text(secondaryText) },
-        trailing = { NetworkRequestActionIcon(uiState, onUiEvent) }
+        trailing = {
+            NetworkRequestActionIcon(uiState, onUiEvent, onA11yStateCheck)
+        }
     )
 }
 
@@ -107,11 +108,13 @@ private fun NetworkRequestStatusIcon(
 @Composable
 private fun NetworkRequestActionIcon(
     uiState: NetworkRequestUiState,
-    onUiEvent: (NetworkRequestUiEvent) -> Unit
+    onUiEvent: (NetworkRequestUiEvent) -> Unit,
+    onA11yStateCheck: () -> Boolean?,
 ) {
     RunIconButton(
         isRunning = uiState.isRunning,
         onClick = {
+            onA11yStateCheck()
             if (!uiState.isRunning) {
                 onUiEvent(
                     NetworkRequestUiEvent.WiFiRequest(
@@ -120,14 +123,13 @@ private fun NetworkRequestActionIcon(
                     )
                 )
             }
-        }
+        },
     )
 }
 
 @Composable
 private fun NetworkRequestSetup(
     uiState: NetworkRequestUiState,
-    onUiEvent: (NetworkRequestUiEvent) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -137,17 +139,6 @@ private fun NetworkRequestSetup(
             context.startActivity(panelIntent)
         }
     }
-
-    EnableAccessibilityService(
-        isAccessibilityServiceEnabled = uiState.isAccessibilityServiceEnabled,
-        onVerify = { enabledServicesSetting: String?, expectedComponentName: ComponentName ->
-            onUiEvent(
-                NetworkRequestUiEvent.VerifyAccessibilityServiceEnabled(
-                    enabledServicesSetting, expectedComponentName
-                )
-            )
-        }
-    )
 }
 
 @Composable
@@ -185,7 +176,8 @@ private fun NetworkRequestTilePreview() {
         Surface {
             NetworkRequestTile(
                 uiState = NetworkRequestUiState(),
-                onUiEvent = {}
+                onUiEvent = {},
+                onA11yStateCheck = { false }
             )
         }
     }

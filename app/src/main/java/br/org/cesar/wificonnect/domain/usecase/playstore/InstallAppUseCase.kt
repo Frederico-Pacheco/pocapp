@@ -1,10 +1,8 @@
 package br.org.cesar.wificonnect.domain.usecase.playstore
 
-import android.content.Context
 import android.content.pm.PackageManager
 import br.org.cesar.wificonnect.common.dispatcher.DispatcherProvider
 import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
-import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class InstallAppUseCase @Inject constructor(
     private val mDispatcherProvider: DispatcherProvider
 ) {
@@ -27,60 +27,58 @@ class InstallAppUseCase @Inject constructor(
 
     private var mRequestTime: Long? = null
 
-    fun onInstall(context: Context, callback: () -> Unit) {
+    fun onInstall(pkgMgr: PackageManager, callback: () -> Unit) {
         val startTime = System.currentTimeMillis()
+        useCaseListener?.onUseCaseMsgReceived("Installing app: $pkgName")
 
         mRequestTime?.let { requestTime ->
             CoroutineScope(mDispatcherProvider.main).launch {
                 val endTime = System.currentTimeMillis()
                 while (endTime - startTime < timeoutMillis) {
-                    if (isInstalled(context)) {
+                    if (isInstalled(pkgMgr)) {
                         updateState(
                             durationMillis = endTime - requestTime,
-                            useCaseStatus = UseCaseStatus.SUCCESS
                         )
                         callback()
                         return@launch
                     }
-                    delay(500L)
+                    delay(200L)
                 }
-                updateState(useCaseStatus = UseCaseStatus.ERROR)
+
+                useCaseListener?.onUseCaseFailed("App installation failed: Service timed out.")
                 callback()
             }
         }
     }
 
-    fun wasRequested(context: Context): Boolean {
-        return isInstalled(context) && mRequestTime != null
+    fun wasRequested(pkgMgr: PackageManager): Boolean {
+        return isInstalled(pkgMgr) && mRequestTime != null
     }
 
     fun setRequestTime(startTime: Long) {
         mRequestTime = startTime
+        useCaseListener?.onUseCaseMsgReceived("Requesting app installation...")
     }
 
     fun getInstallDuration(): Long? {
         return state.value.durationMillis
     }
 
-    fun setUseCaseStatus(useCaseStatus: UseCaseStatus) {
-        updateState(useCaseStatus = useCaseStatus)
-    }
-
     private fun updateState(
         durationMillis: Long? = null,
-        useCaseStatus: UseCaseStatus? = null
     ) {
         _state.update { currentState ->
             currentState.copy(
                 durationMillis = durationMillis ?: currentState.durationMillis,
-                useCaseStatus = useCaseStatus ?: currentState.useCaseStatus
             )
         }
     }
 
-    private fun isInstalled(context: Context): Boolean {
+    private fun isInstalled(pkgMgr: PackageManager): Boolean {
         return try {
-            context.packageManager.getPackageInfo(pkgName!!, 0)
+            pkgMgr.getPackageInfo(pkgName!!, 0)
+
+            useCaseListener?.onUseCaseSuccess()
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false

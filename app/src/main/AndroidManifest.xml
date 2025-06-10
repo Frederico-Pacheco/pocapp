@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <queries>
         <package android:name="com.apple.atve.androidtv.appletv" />
     </queries>

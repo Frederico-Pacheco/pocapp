@@ -1,7 +1,6 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.network
+package br.org.cesar.wificonnect.ui.screens.tiles.network.wifirequest
 
 import android.Manifest
-import android.content.ComponentName
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
@@ -10,8 +9,7 @@ import br.org.cesar.wificonnect.BuildConfig
 import br.org.cesar.wificonnect.common.dispatcher.DispatcherProvider
 import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
-import br.org.cesar.wificonnect.domain.usecase.accessibility.AccessibilityServiceUseCase
-import br.org.cesar.wificonnect.domain.usecase.network.NetworkRequestUseCase
+import br.org.cesar.wificonnect.domain.usecase.network.wifirequest.NetworkRequestUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,10 +58,6 @@ class NetworkRequestViewModel @Inject constructor(
                 isWifiEnabled = mNetworkRequestUseCase.isWifiEnabled()
             )
 
-            is NetworkRequestUiEvent.VerifyAccessibilityServiceEnabled -> {
-                isAccessibilityServiceEnabled(event.serviceSetting, event.expectedComponentName)
-            }
-
             is NetworkRequestUiEvent.UpdatePermissionStatus -> updateState(
                 permissionStatus = event.permissionStatus
             )
@@ -84,7 +78,6 @@ class NetworkRequestViewModel @Inject constructor(
         useCaseStatus: UseCaseStatus? = null,
         permissionStatus: Int? = null,
         isRunning: Boolean? = null,
-        isAccessibilityServiceEnabled: Boolean? = null,
     ) {
         _uiState.update { currentState ->
             currentState.copy(
@@ -96,22 +89,8 @@ class NetworkRequestViewModel @Inject constructor(
                 useCaseStatus = useCaseStatus ?: currentState.useCaseStatus,
                 permissionStatus = permissionStatus ?: currentState.permissionStatus,
                 isRunning = isRunning ?: currentState.isRunning,
-                isAccessibilityServiceEnabled = isAccessibilityServiceEnabled
-                    ?: currentState.isAccessibilityServiceEnabled
             )
         }
-    }
-
-    private fun isAccessibilityServiceEnabled(
-        serviceSetting: String?,
-        expectedComponentName: ComponentName
-    ) {
-        updateState(
-            isAccessibilityServiceEnabled = AccessibilityServiceUseCase.isAccessibilityServiceEnabled(
-                serviceSetting,
-                expectedComponentName
-            )
-        )
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)

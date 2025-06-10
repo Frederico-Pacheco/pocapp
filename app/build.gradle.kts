@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.google.hilt)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.jetbrains.compose)
 }
 
 val localProperties = Properties().apply {
@@ -23,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId = "br.org.cesar.wificonnect"
-        minSdk = 29
+        minSdk = 31
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -65,7 +66,9 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+
     implementation(libs.androidx.material3)
+    implementation(compose.materialIconsExtended)
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

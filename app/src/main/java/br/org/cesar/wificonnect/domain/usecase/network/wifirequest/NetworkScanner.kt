@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.domain.usecase.network
+package br.org.cesar.wificonnect.domain.usecase.network.wifirequest
 
 import android.Manifest
 import android.content.BroadcastReceiver
@@ -11,11 +11,12 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ViewModelScoped
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-
+@ViewModelScoped
 class NetworkScanner @Inject constructor(
     @ApplicationContext private val mContext: Context,
     private val mWifiManager: WifiManager,

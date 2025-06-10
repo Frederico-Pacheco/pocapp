@@ -3,7 +3,7 @@ package br.org.cesar.wificonnect.di
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
-import br.org.cesar.wificonnect.domain.usecase.network.NetworkScanner
+import android.telephony.TelephonyManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,13 +17,19 @@ class PocModule {
 
     @Provides
     @Singleton
-    fun provideWifiManager(@ApplicationContext context: Context): WifiManager {
-        return context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    fun provideConnectivityManager(@ApplicationContext context: Context): ConnectivityManager {
+        return context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }
 
     @Provides
     @Singleton
-    fun provideConnectivityManager(@ApplicationContext context: Context): ConnectivityManager {
-        return context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    fun provideTelephonyManager(@ApplicationContext context: Context): TelephonyManager {
+        return context.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+    }
+
+    @Provides
+    @Singleton
+    fun provideWifiManager(@ApplicationContext context: Context): WifiManager {
+        return context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     }
 }

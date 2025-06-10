@@ -70,17 +70,15 @@ class PocAccessibilityService : AccessibilityService() {
         if (nodes.size > 3
             && nodes[0].text != null
             && nodes[0].text.toString() == useCase.companyName
-            && !useCase.wasRequested(this)
+            && !useCase.wasRequested(packageManager)
             && useCase.getInstallDuration() == null
         ) {
             val node = nodes[3]
             node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
             useCase.setRequestTime(System.currentTimeMillis())
-            useCase.onInstall(this) {
+            useCase.onInstall(packageManager) {
                 performGlobalAction(GLOBAL_ACTION_BACK)
             }
-        } else if (useCase.getInstallDuration() != null) {
-            performGlobalAction(GLOBAL_ACTION_BACK)
         }
     }
 

@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.domain.usecase.network
+package br.org.cesar.wificonnect.domain.usecase.network.wifirequest
 
 import android.Manifest
 import android.net.ConnectivityManager
@@ -13,9 +13,10 @@ import android.net.wifi.WifiNetworkSpecifier
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
+import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 
-
+@ViewModelScoped
 class NetworkRequestUseCase @Inject constructor(
     private val mWifiManager: WifiManager,
     private val mConnectivityManager: ConnectivityManager,
@@ -29,7 +30,11 @@ class NetworkRequestUseCase @Inject constructor(
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    fun measureNetworkRequest(ssid: String?, psk: String?, listener: UseCaseListener?): Long? {
+    fun measureNetworkRequest(
+        ssid: String?,
+        psk: String?,
+        listener: UseCaseListener? = null
+    ): Long? {
         listener?.onUseCaseStarted()
 
         if (ssid.isNullOrEmpty() or psk.isNullOrEmpty()) {

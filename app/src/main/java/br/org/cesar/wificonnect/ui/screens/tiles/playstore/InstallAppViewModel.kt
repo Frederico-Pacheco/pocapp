@@ -1,10 +1,9 @@
 package br.org.cesar.wificonnect.ui.screens.tiles.playstore
 
-import android.content.ComponentName
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
-import br.org.cesar.wificonnect.domain.usecase.accessibility.AccessibilityServiceUseCase
+import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import br.org.cesar.wificonnect.domain.usecase.playstore.InstallAppUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +22,7 @@ class InstallAppViewModel @Inject constructor(
 
     private val mUseCaseListener = object : UseCaseListener {
         override fun onUseCaseStarted() {
-            // TODO("Not yet implemented")
+            updateState(isRunning = true)
         }
 
         override fun onUseCaseMsgReceived(msg: String) {
@@ -31,11 +30,21 @@ class InstallAppViewModel @Inject constructor(
         }
 
         override fun onUseCaseSuccess() {
-            // TODO("Not yet implemented")
+            onUseCaseMsgReceived("App Installation Completed!")
+
+            updateState(
+                isRunning = false,
+                useCaseStatus = UseCaseStatus.SUCCESS
+            )
         }
 
         override fun onUseCaseFailed(reason: String?) {
-            // TODO("Not yet implemented")
+            onUseCaseMsgReceived("App Installation Failed: $reason")
+
+            updateState(
+                isRunning = false,
+                useCaseStatus = UseCaseStatus.ERROR
+            )
         }
     }
 
@@ -44,7 +53,6 @@ class InstallAppViewModel @Inject constructor(
             useCase.state.collect { useCaseState ->
                 _uiState.value = _uiState.value.copy(
                     durationMillis = useCaseState.durationMillis,
-                    useCaseStatus = useCaseState.useCaseStatus,
                     isRunning = if (useCaseState.durationMillis != null) false else uiState.value.isRunning
                 )
             }
@@ -54,51 +62,26 @@ class InstallAppViewModel @Inject constructor(
     fun onUiEvent(event: InstallAppUiEvent) {
         when (event) {
             is InstallAppUiEvent.Initialize -> initUseCase()
-            is InstallAppUiEvent.RunningStateChanged -> {
-                updateState(isRunning = event.isRunning)
-            }
-
-            is InstallAppUiEvent.UpdateAccessibilitySettingsAccess -> {
-                updateState(canOpenAccessibilitySettings = event.canOpen)
-            }
-
-            is InstallAppUiEvent.VerifyAccessibilityServiceEnabled -> {
-                isAccessibilityServiceEnabled(event.serviceSetting, event.expectedComponentName)
-            }
+            is InstallAppUiEvent.RunningStateChanged -> updateState(isRunning = event.isRunning)
         }
     }
 
     private fun updateState(
         packageName: String? = null,
-        isAccessibilityServiceEnabled: Boolean? = null,
-        canOpenAccessibilitySettings: Boolean? = null,
         listenerMessage: String? = null,
+        useCaseStatus: UseCaseStatus? = null,
         isRunning: Boolean? = null,
     ) {
         _uiState.update { currentState ->
             currentState.copy(
                 packageName = packageName ?: currentState.packageName,
-                isAccessibilityServiceEnabled = isAccessibilityServiceEnabled
-                    ?: currentState.isAccessibilityServiceEnabled,
-                canOpenAccessibilitySettings = canOpenAccessibilitySettings
-                    ?: currentState.canOpenAccessibilitySettings,
                 listenerMessage = listenerMessage ?: currentState.listenerMessage,
+                useCaseStatus = useCaseStatus ?: currentState.useCaseStatus,
                 isRunning = isRunning ?: currentState.isRunning,
             )
         }
     }
 
-    private fun isAccessibilityServiceEnabled(
-        serviceSetting: String?,
-        expectedComponentName: ComponentName
-    ) {
-        updateState(
-            isAccessibilityServiceEnabled = AccessibilityServiceUseCase.isAccessibilityServiceEnabled(
-                serviceSetting,
-                expectedComponentName
-            )
-        )
-    }
 
     private fun initUseCase() {
         val currentState = uiState.value

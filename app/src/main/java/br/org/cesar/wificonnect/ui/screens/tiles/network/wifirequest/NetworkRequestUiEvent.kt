@@ -1,15 +1,8 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.network
-
-import android.content.ComponentName
+package br.org.cesar.wificonnect.ui.screens.tiles.network.wifirequest
 
 sealed class NetworkRequestUiEvent {
 
     data object VerifyWifiEnabled : NetworkRequestUiEvent()
-
-    data class VerifyAccessibilityServiceEnabled(
-        val serviceSetting: String?,
-        val expectedComponentName: ComponentName
-    ) : NetworkRequestUiEvent()
 
     data class UpdatePermissionStatus(val permissionStatus: Int) : NetworkRequestUiEvent()
 

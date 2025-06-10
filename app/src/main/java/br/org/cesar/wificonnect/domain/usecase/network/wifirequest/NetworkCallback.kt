@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.domain.usecase.network
+package br.org.cesar.wificonnect.domain.usecase.network.wifirequest
 
 import android.net.ConnectivityManager
 import android.net.Network
