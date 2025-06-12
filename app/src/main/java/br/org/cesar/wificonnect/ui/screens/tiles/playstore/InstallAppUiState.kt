@@ -4,8 +4,8 @@ import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import java.text.DecimalFormat
 
 data class InstallAppUiState(
-    val companyName: String? = "Apple",
-    val packageName: String? = "com.apple.atve.androidtv.appletv",
+    val companyName: String? = null,
+    val packageName: String? = null,
     val durationMillis: Long? = null,
     val timeoutMillis: Long = 10000L,
     val listenerMessage: String = "",

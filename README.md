@@ -1,6 +1,7 @@
 # PoC Application
+---
 
-This is a Proof of Concept (POC) project for connecting to a Wi-Fi network programmatically.
+This Android application was built to centralize and simplify the execution of Proof of Concepts (PoCs) in a controlled environment. It displays a list of available use cases (PoCs) and allows users to run each one individually while tracking its execution status in real time.
 
 ## Setup
 Before running the project, you need to configure the Wi-Fi network details by adding them to the `local.properties` file in the project root directory.
@@ -8,9 +9,21 @@ Before running the project, you need to configure the Wi-Fi network details by a
 **Required Properties:**
 
 ```
+app.pkg=PlayStoreAppPkg
+app.company=PlayStoreLinkText
+
 wifi.ssid=YourNetworkName
 wifi.pks=YourNetworkPassword
 ```
+
+## Use Cases
+|     |              Use Case               | Summary                                                                                                                                                                                              |
+|:----|:-----------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ⏳   |          **Wifi Request**           | <ul><li>Measures how long the device takes to connect to a specific Wi-Fi network.</li></ul>                                                                                                         |
+| ⬇️️ |           **Install App**           | <ul><li>Measures the time taken for the device to download and install an application from the Google Play Store.</li></ul>                                                                          |
+| 📶️ | **Measure MobileNetwork Signal** | <ul><li>Captures and records the LTE signal strength over a specified period of time.</li></ul>                                                                                                                                                                                   |
+
+---
 
 ## Wi-Fi Network Configuration Restriction (Android 10+)
 

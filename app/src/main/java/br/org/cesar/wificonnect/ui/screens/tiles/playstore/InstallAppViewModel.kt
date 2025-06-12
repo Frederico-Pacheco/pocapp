@@ -2,6 +2,7 @@ package br.org.cesar.wificonnect.ui.screens.tiles.playstore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.org.cesar.wificonnect.BuildConfig
 import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import br.org.cesar.wificonnect.domain.usecase.playstore.InstallAppUseCase
@@ -49,6 +50,7 @@ class InstallAppViewModel @Inject constructor(
     }
 
     init {
+        updateAppConfig()
         viewModelScope.launch {
             useCase.state.collect { useCaseState ->
                 _uiState.value = _uiState.value.copy(
@@ -67,6 +69,7 @@ class InstallAppViewModel @Inject constructor(
     }
 
     private fun updateState(
+        companyName: String? = null,
         packageName: String? = null,
         listenerMessage: String? = null,
         useCaseStatus: UseCaseStatus? = null,
@@ -74,6 +77,7 @@ class InstallAppViewModel @Inject constructor(
     ) {
         _uiState.update { currentState ->
             currentState.copy(
+                companyName = companyName ?: currentState.companyName,
                 packageName = packageName ?: currentState.packageName,
                 listenerMessage = listenerMessage ?: currentState.listenerMessage,
                 useCaseStatus = useCaseStatus ?: currentState.useCaseStatus,
@@ -82,10 +86,15 @@ class InstallAppViewModel @Inject constructor(
         }
     }
 
+    private fun updateAppConfig() {
+        updateState(
+            companyName = uiState.value.companyName ?: BuildConfig.APP_COMPANY,
+            packageName = uiState.value.packageName ?: BuildConfig.APP_PKG,
+        )
+    }
 
     private fun initUseCase() {
         val currentState = uiState.value
-
         useCase.apply {
             companyName = currentState.companyName
             pkgName = currentState.packageName

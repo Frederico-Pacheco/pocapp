@@ -39,6 +39,11 @@ class MainActivity : ComponentActivity() {
                 ssid = intent.getStringExtra("WIFI_SSID"),
                 psk = intent.getStringExtra("WIFI_PSK")
             )
+
+            "playstore.install" -> navigateToPlayStoreInstall(
+                appPkg = intent.getStringExtra("APP_PKG"),
+                appCompany = intent.getStringExtra("APP_COMPANY")
+            )
         }
     }
 
@@ -47,6 +52,16 @@ class MainActivity : ComponentActivity() {
             val networkRequestRoute = AppNavDestination.NetworkRequest(true, ssid, psk)
 
             navController?.navigate(networkRequestRoute) {
+                launchSingleTop = true
+            }
+        }
+    }
+
+    private fun navigateToPlayStoreInstall(appPkg: String?, appCompany: String?) {
+        if (appPkg != null && appCompany != null) {
+            val playStoreInstallRoute = AppNavDestination.PlayStoreInstall(true, appPkg, appCompany)
+
+            navController?.navigate(playStoreInstallRoute) {
                 launchSingleTop = true
             }
         }

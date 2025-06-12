@@ -1,5 +1,6 @@
 package br.org.cesar.wificonnect.ui.screens
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Intent
@@ -32,8 +33,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
 import br.org.cesar.wificonnect.service.PocAccessibilityService
+import br.org.cesar.wificonnect.ui.components.RequestPermission
 import br.org.cesar.wificonnect.ui.navigation.NavManager
 import br.org.cesar.wificonnect.ui.screens.tiles.network.mobilesignal.NetworkSignalTileRoot
+import br.org.cesar.wificonnect.ui.screens.tiles.network.mobilesignal.NetworkSignalUiEvent
 import br.org.cesar.wificonnect.ui.screens.tiles.network.wifirequest.NetworkRequestTileRoot
 import br.org.cesar.wificonnect.ui.screens.tiles.playstore.InstallAppTileRoot
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
@@ -106,13 +109,10 @@ fun UseCaseListScreen(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                NetworkRequestTileRoot(
-                    callbackA11yStateCheck,
-                    routes.networkRequestRoute
-                )
+                NetworkRequestTileRoot(callbackA11yStateCheck, routes.networkRequestRoute)
                 HorizontalDivider()
 
-                InstallAppTileRoot(callbackA11yStateCheck)
+                InstallAppTileRoot(callbackA11yStateCheck, routes.playStoreInstallRoute)
                 HorizontalDivider()
 
                 NetworkSignalTileRoot()

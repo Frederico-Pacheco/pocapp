@@ -25,5 +25,14 @@ fun NavGraphBuilder.appNavGraph(
                 routes = UseCaseRouteMap(networkRequestRoute = route)
             )
         }
+
+        composable<AppNavDestination.PlayStoreInstall> { backStackEntry ->
+            val route = backStackEntry.toRoute<AppNavDestination.PlayStoreInstall>()
+
+            UseCaseListScreenRoot(
+                navManager = navManager,
+                routes = UseCaseRouteMap(playStoreInstallRoute = route)
+            )
+        }
     }
 }

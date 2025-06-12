@@ -56,8 +56,9 @@ class InstallAppUseCase @Inject constructor(
     }
 
     fun setRequestTime(startTime: Long) {
-        mRequestTime = startTime
+        useCaseListener?.onUseCaseStarted()
         useCaseListener?.onUseCaseMsgReceived("Requesting app installation...")
+        mRequestTime = startTime
     }
 
     fun getInstallDuration(): Long? {

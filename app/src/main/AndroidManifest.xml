@@ -52,11 +52,12 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <receiver android:name=".receiver.NetworkRequestReceiver"
+        <receiver android:name=".receiver.UseCaseReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="br.org.cesar.wificonnect.action.REQUEST_WIFI_CONNECTION" />
+                <action android:name="br.org.cesar.wificonnect.action.INSTALL_APP" />
             </intent-filter>
         </receiver>
     </application>

@@ -15,4 +15,11 @@ sealed interface AppNavDestination {
         val wifiSsid: String? = null,
         val wifiPsk: String? = null
     ) : AppNavDestination
+
+    @Serializable
+    data class PlayStoreInstall(
+        var autoRun: Boolean = false,
+        val appPkg: String? = null,
+        val appCompany: String? = null
+    ) : AppNavDestination
 }

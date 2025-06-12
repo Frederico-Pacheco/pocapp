@@ -1,5 +1,6 @@
 package br.org.cesar.wificonnect.ui.screens.tiles.playstore
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -8,6 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
@@ -18,14 +20,25 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import br.org.cesar.wificonnect.ui.components.PrefsItem
 import br.org.cesar.wificonnect.ui.components.RunIconButton
+import br.org.cesar.wificonnect.ui.navigation.AppNavDestination
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
 @Composable
 fun InstallAppTileRoot(
     onA11yStateCheck: () -> Boolean?,
+    navRoute: AppNavDestination.PlayStoreInstall = AppNavDestination.PlayStoreInstall(),
 ) {
     val viewModel = hiltViewModel<InstallAppViewModel>()
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        if (navRoute.autoRun) {
+            installApp(context, uiState, viewModel::onUiEvent, onA11yStateCheck)
+
+            navRoute.autoRun = false
+        }
+    }
 
     InstallAppTile(
         uiState = uiState,
@@ -40,6 +53,8 @@ private fun InstallAppTile(
     onUiEvent: (InstallAppUiEvent) -> Unit,
     onA11yStateCheck: () -> Boolean?,
 ) {
+    val context = LocalContext.current
+
     val secondaryText = if (UseCaseStatus.SUCCESS != uiState.useCaseStatus) {
         uiState.listenerMessage
     } else {
@@ -51,10 +66,9 @@ private fun InstallAppTile(
         text = { Text("Install App") },
         secondaryText = { Text(secondaryText) },
         trailing = {
-            InstallAppActionIcon(
-                uiState,
-                onUiEvent,
-                onA11yStateCheck,
+            RunIconButton(
+                isRunning = uiState.isRunning,
+                onClick = { installApp(context, uiState, onUiEvent, onA11yStateCheck) }
             )
         }
     )
@@ -84,31 +98,24 @@ private fun InstallAppStatusIcon(
     }
 }
 
-@Composable
-private fun InstallAppActionIcon(
+private fun installApp(
+    context: Context,
     uiState: InstallAppUiState,
     onUiEvent: (InstallAppUiEvent) -> Unit,
     onA11yStateCheck: () -> Boolean?,
 ) {
-    val context = LocalContext.current
-
-    RunIconButton(
-        isRunning = uiState.isRunning,
-        onClick = {
-            val isEnabled = onA11yStateCheck()
-            onUiEvent(InstallAppUiEvent.Initialize)
-            if (isEnabled == true) {
-                onUiEvent(InstallAppUiEvent.RunningStateChanged(true))
-                uiState.packageName?.let { packageName ->
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        data = "market://details?id=${packageName}".toUri()
-                        setPackage("com.android.vending")
-                    }
-                    context.startActivity(intent)
-                }
+    val isEnabled = onA11yStateCheck()
+    onUiEvent(InstallAppUiEvent.Initialize)
+    if (isEnabled == true) {
+        onUiEvent(InstallAppUiEvent.RunningStateChanged(true))
+        uiState.packageName?.let { packageName ->
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = "market://details?id=${packageName}".toUri()
+                setPackage("com.android.vending")
             }
-        },
-    )
+            context.startActivity(intent)
+        }
+    }
 }
 
 @Preview
