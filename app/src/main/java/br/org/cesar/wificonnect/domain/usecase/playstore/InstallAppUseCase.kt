@@ -1,6 +1,7 @@
 package br.org.cesar.wificonnect.domain.usecase.playstore
 
 import android.content.pm.PackageManager
+import android.view.accessibility.AccessibilityNodeInfo
 import br.org.cesar.wificonnect.common.dispatcher.DispatcherProvider
 import br.org.cesar.wificonnect.domain.usecase.UseCaseListener
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 class InstallAppUseCase @Inject constructor(
+    private val mPackageManager: PackageManager,
     private val mDispatcherProvider: DispatcherProvider
 ) {
     private val _state = MutableStateFlow(InstallAppUseCaseState())
@@ -27,7 +29,43 @@ class InstallAppUseCase @Inject constructor(
 
     private var mRequestTime: Long? = null
 
-    fun onInstall(pkgMgr: PackageManager, callback: () -> Unit) {
+    fun handlePlayStoreUi(
+        rootNode: AccessibilityNodeInfo?,
+        installCallback: () -> Unit
+    ) {
+        if (rootNode == null) return
+        val nodes = mutableListOf<AccessibilityNodeInfo>()
+
+        fun findAllButtons(node: AccessibilityNodeInfo?) {
+            if (node == null) return
+
+            if (node.isClickable && node.isVisibleToUser) {
+                nodes.add(node)
+            }
+
+            for (i in 0 until node.childCount) {
+                findAllButtons(node.getChild(i))
+            }
+        }
+
+        findAllButtons(rootNode)
+
+        if (nodes.size > 3
+            && nodes[0].text != null
+            && nodes[0].text.toString() == companyName
+            && !wasRequested()
+            && getInstallDuration() == null
+        ) {
+            val node = nodes[3]
+            node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            setRequestTime(System.currentTimeMillis())
+            onInstall {
+                installCallback()
+            }
+        }
+    }
+
+    private fun onInstall(callback: () -> Unit) {
         val startTime = System.currentTimeMillis()
         useCaseListener?.onUseCaseMsgReceived("Installing app: $pkgName")
 
@@ -35,7 +73,7 @@ class InstallAppUseCase @Inject constructor(
             CoroutineScope(mDispatcherProvider.main).launch {
                 val endTime = System.currentTimeMillis()
                 while (endTime - startTime < timeoutMillis) {
-                    if (isInstalled(pkgMgr)) {
+                    if (isInstalled()) {
                         updateState(
                             durationMillis = endTime - requestTime,
                         )
@@ -51,17 +89,17 @@ class InstallAppUseCase @Inject constructor(
         }
     }
 
-    fun wasRequested(pkgMgr: PackageManager): Boolean {
-        return isInstalled(pkgMgr) && mRequestTime != null
+    private fun wasRequested(): Boolean {
+        return isInstalled() && mRequestTime != null
     }
 
-    fun setRequestTime(startTime: Long) {
+    private fun setRequestTime(startTime: Long) {
         useCaseListener?.onUseCaseStarted()
         useCaseListener?.onUseCaseMsgReceived("Requesting app installation...")
         mRequestTime = startTime
     }
 
-    fun getInstallDuration(): Long? {
+    private fun getInstallDuration(): Long? {
         return state.value.durationMillis
     }
 
@@ -75,9 +113,9 @@ class InstallAppUseCase @Inject constructor(
         }
     }
 
-    private fun isInstalled(pkgMgr: PackageManager): Boolean {
+    private fun isInstalled(): Boolean {
         return try {
-            pkgMgr.getPackageInfo(pkgName!!, 0)
+            mPackageManager.getPackageInfo(pkgName!!, 0)
 
             useCaseListener?.onUseCaseSuccess()
             true

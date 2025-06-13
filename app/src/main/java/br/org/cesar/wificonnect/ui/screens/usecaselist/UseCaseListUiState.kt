@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens
+package br.org.cesar.wificonnect.ui.screens.usecaselist
 
 import android.content.ComponentName
 

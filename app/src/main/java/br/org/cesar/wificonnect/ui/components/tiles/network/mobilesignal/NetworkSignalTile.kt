@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.network.mobilesignal
+package br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal
 
 import android.Manifest
 import androidx.compose.material.icons.Icons

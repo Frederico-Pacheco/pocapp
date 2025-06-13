@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.playstore
+package br.org.cesar.wificonnect.ui.components.tiles.playstore
 
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import java.text.DecimalFormat

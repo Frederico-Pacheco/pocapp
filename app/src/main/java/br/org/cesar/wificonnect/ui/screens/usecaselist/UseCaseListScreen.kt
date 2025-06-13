@@ -1,6 +1,5 @@
-package br.org.cesar.wificonnect.ui.screens
+package br.org.cesar.wificonnect.ui.screens.usecaselist
 
-import android.Manifest
 import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.Intent
@@ -33,12 +32,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
 import br.org.cesar.wificonnect.service.PocAccessibilityService
-import br.org.cesar.wificonnect.ui.components.RequestPermission
+import br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal.NetworkSignalTileRoot
+import br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest.NetworkRequestTileRoot
+import br.org.cesar.wificonnect.ui.components.tiles.playstore.InstallAppTileRoot
+import br.org.cesar.wificonnect.ui.components.tiles.system.RunAppTileRoot
 import br.org.cesar.wificonnect.ui.navigation.NavManager
-import br.org.cesar.wificonnect.ui.screens.tiles.network.mobilesignal.NetworkSignalTileRoot
-import br.org.cesar.wificonnect.ui.screens.tiles.network.mobilesignal.NetworkSignalUiEvent
-import br.org.cesar.wificonnect.ui.screens.tiles.network.wifirequest.NetworkRequestTileRoot
-import br.org.cesar.wificonnect.ui.screens.tiles.playstore.InstallAppTileRoot
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
 @Composable
@@ -116,6 +114,9 @@ fun UseCaseListScreen(
                 HorizontalDivider()
 
                 NetworkSignalTileRoot()
+                HorizontalDivider()
+
+                RunAppTileRoot()
             }
         }
     }

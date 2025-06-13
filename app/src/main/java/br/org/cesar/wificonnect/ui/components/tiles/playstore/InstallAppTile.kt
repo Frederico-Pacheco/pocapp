@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.playstore
+package br.org.cesar.wificonnect.ui.components.tiles.playstore
 
 import android.content.Context
 import android.content.Intent

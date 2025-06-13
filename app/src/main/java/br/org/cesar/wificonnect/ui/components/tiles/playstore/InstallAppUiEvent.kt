@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.playstore
+package br.org.cesar.wificonnect.ui.components.tiles.playstore
 
 sealed class InstallAppUiEvent {
     data object Initialize : InstallAppUiEvent()

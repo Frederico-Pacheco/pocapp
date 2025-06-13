@@ -1,6 +1,7 @@
 package br.org.cesar.wificonnect.di
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.telephony.TelephonyManager
@@ -19,6 +20,12 @@ class PocModule {
     @Singleton
     fun provideConnectivityManager(@ApplicationContext context: Context): ConnectivityManager {
         return context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+
+    @Provides
+    @Singleton
+    fun providePackageManager(@ApplicationContext context: Context): PackageManager {
+        return context.applicationContext.packageManager
     }
 
     @Provides

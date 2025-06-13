@@ -10,6 +10,9 @@ sealed interface AppNavDestination {
     data object UseCaseList : AppNavDestination
 
     @Serializable
+    data object ReRunApp : AppNavDestination
+
+    @Serializable
     data class NetworkRequest(
         var autoRun: Boolean = false,
         val wifiSsid: String? = null,

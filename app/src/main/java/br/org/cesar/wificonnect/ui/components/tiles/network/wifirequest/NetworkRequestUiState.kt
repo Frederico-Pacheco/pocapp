@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.network.wifirequest
+package br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest
 
 import android.content.pm.PackageManager
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus

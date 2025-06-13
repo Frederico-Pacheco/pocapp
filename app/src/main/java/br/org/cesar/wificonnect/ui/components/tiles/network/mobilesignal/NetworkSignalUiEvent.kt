@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.network.mobilesignal
+package br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal
 
 sealed class NetworkSignalUiEvent {
     data class UpdatePermissionStatus(val permissionStatus: Int) : NetworkSignalUiEvent()

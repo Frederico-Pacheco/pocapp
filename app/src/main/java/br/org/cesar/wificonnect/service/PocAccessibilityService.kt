@@ -4,18 +4,23 @@ import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import br.org.cesar.wificonnect.domain.usecase.playstore.InstallAppUseCase
+import br.org.cesar.wificonnect.domain.usecase.system.RunAppUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class PocAccessibilityService : AccessibilityService() {
     @Inject
-    lateinit var useCase: InstallAppUseCase
+    lateinit var mInstallAppUseCase: InstallAppUseCase
+
+    @Inject
+    lateinit var mRunAppUseCase: RunAppUseCase
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
         val packageName = event.packageName?.toString()
+        mRunAppUseCase.addAppPackageName(packageName)
         when (packageName) {
             "com.android.settings" -> startEvent(event, ::handleSettingsUiPopup)
 
@@ -50,35 +55,8 @@ class PocAccessibilityService : AccessibilityService() {
     }
 
     private fun handlePlayStoreUi(rootNode: AccessibilityNodeInfo?) {
-        if (rootNode == null) return
-        val nodes = mutableListOf<AccessibilityNodeInfo>()
-
-        fun findAllButtons(node: AccessibilityNodeInfo?) {
-            if (node == null) return
-
-            if (node.isClickable && node.isVisibleToUser) {
-                nodes.add(node)
-            }
-
-            for (i in 0 until node.childCount) {
-                findAllButtons(node.getChild(i))
-            }
-        }
-
-        findAllButtons(rootNode)
-
-        if (nodes.size > 3
-            && nodes[0].text != null
-            && nodes[0].text.toString() == useCase.companyName
-            && !useCase.wasRequested(packageManager)
-            && useCase.getInstallDuration() == null
-        ) {
-            val node = nodes[3]
-            node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            useCase.setRequestTime(System.currentTimeMillis())
-            useCase.onInstall(packageManager) {
-                performGlobalAction(GLOBAL_ACTION_BACK)
-            }
+        mInstallAppUseCase.handlePlayStoreUi(rootNode) {
+            performGlobalAction(GLOBAL_ACTION_BACK)
         }
     }
 

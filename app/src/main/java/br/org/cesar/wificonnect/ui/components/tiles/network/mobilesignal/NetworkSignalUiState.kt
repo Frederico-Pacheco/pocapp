@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.network.mobilesignal
+package br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal
 
 import android.content.pm.PackageManager
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus

@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.playstore
+package br.org.cesar.wificonnect.ui.components.tiles.playstore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InstallAppViewModel @Inject constructor(
-    private val useCase: InstallAppUseCase
+    private val mUseCase: InstallAppUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(InstallAppUiState())
     val uiState: StateFlow<InstallAppUiState> = _uiState.asStateFlow()
@@ -52,7 +52,7 @@ class InstallAppViewModel @Inject constructor(
     init {
         updateAppConfig()
         viewModelScope.launch {
-            useCase.state.collect { useCaseState ->
+            mUseCase.state.collect { useCaseState ->
                 _uiState.value = _uiState.value.copy(
                     durationMillis = useCaseState.durationMillis,
                     isRunning = if (useCaseState.durationMillis != null) false else uiState.value.isRunning
@@ -95,7 +95,7 @@ class InstallAppViewModel @Inject constructor(
 
     private fun initUseCase() {
         val currentState = uiState.value
-        useCase.apply {
+        mUseCase.apply {
             companyName = currentState.companyName
             pkgName = currentState.packageName
             useCaseListener = mUseCaseListener

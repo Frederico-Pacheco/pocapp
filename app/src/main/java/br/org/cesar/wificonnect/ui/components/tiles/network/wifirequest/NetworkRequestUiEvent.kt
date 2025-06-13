@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.ui.screens.tiles.network.wifirequest
+package br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest
 
 sealed class NetworkRequestUiEvent {
 

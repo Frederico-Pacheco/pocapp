@@ -5,7 +5,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
-import br.org.cesar.wificonnect.ui.screens.UseCaseListScreenRoot
+import br.org.cesar.wificonnect.ui.screens.rerunapp.ReRunAppScreenRoot
+import br.org.cesar.wificonnect.ui.screens.usecaselist.UseCaseListScreenRoot
 
 fun NavGraphBuilder.appNavGraph(
     navManager: NavManager,
@@ -15,6 +16,10 @@ fun NavGraphBuilder.appNavGraph(
     ) {
         composable<AppNavDestination.UseCaseList> {
             UseCaseListScreenRoot(navManager)
+        }
+
+        composable<AppNavDestination.ReRunApp> {
+            ReRunAppScreenRoot(navManager)
         }
 
         composable<AppNavDestination.NetworkRequest> { backStackEntry ->
