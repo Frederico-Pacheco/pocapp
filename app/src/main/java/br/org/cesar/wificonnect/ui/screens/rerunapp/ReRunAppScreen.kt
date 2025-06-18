@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -46,7 +48,8 @@ fun ReRunAppScreenRoot(
 
     ReRunAppScreen(
         uiState = uiState,
-        onUiEvent = viewModel::onUiEvent
+        onUiEvent = viewModel::onUiEvent,
+        onNavigateUp = navManager::navigateUp
     )
 }
 
@@ -55,6 +58,7 @@ fun ReRunAppScreenRoot(
 private fun ReRunAppScreen(
     uiState: ReRunAppUiState,
     onUiEvent: (ReRunAppUiEvent) -> Unit,
+    onNavigateUp: () -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -66,12 +70,6 @@ private fun ReRunAppScreen(
                 ComponentName(context, PocAccessibilityService::class.java)
             )
         )
-    }
-
-    LaunchedEffect(uiState.isA11yEnabled) {
-        if (uiState.isA11yEnabled != true) {
-            context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-        }
     }
 
     LaunchedEffect(lifecycleState) {
@@ -100,6 +98,14 @@ private fun ReRunAppScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                },
                 title = { Text("Re-run App") },
             )
         }
@@ -171,6 +177,8 @@ private fun installApp(
             }
             context.startActivity(intent)
         }
+    } else {
+        context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
     }
 }
 
@@ -180,7 +188,8 @@ private fun ReRunAppScreenPreview() {
     DesignSystemTheme {
         ReRunAppScreen(
             uiState = ReRunAppUiState(),
-            onUiEvent = {}
+            onUiEvent = {},
+            onNavigateUp = {}
         )
     }
 }

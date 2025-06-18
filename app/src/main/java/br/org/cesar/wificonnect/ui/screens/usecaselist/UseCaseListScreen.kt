@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.SettingsAccessibility
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -51,7 +52,8 @@ fun UseCaseListScreenRoot(
         uiState = uiState,
         routes = routes,
         onA11yStateUpdate = { viewModel.updateA11yState(it) },
-        onA11yComponentNameUpdate = { viewModel.updateUiState(a11yServiceComponentName = it) }
+        onA11yComponentNameUpdate = { viewModel.updateUiState(a11yServiceComponentName = it) },
+        onNavigateUp = navManager::navigateUp
     )
 }
 
@@ -61,7 +63,8 @@ fun UseCaseListScreen(
     uiState: UseCaseListUiState,
     routes: UseCaseRouteMap,
     onA11yStateUpdate: (ContentResolver) -> Unit,
-    onA11yComponentNameUpdate: (ComponentName?) -> Unit
+    onA11yComponentNameUpdate: (ComponentName?) -> Unit,
+    onNavigateUp: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -93,6 +96,14 @@ fun UseCaseListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                },
                 title = { Text("Use Cases") },
                 actions = { UseCaseListActions(uiState) }
             )
@@ -169,7 +180,8 @@ private fun UseCaseListScreenPreview() {
             uiState = UseCaseListUiState(),
             routes = UseCaseRouteMap(),
             onA11yStateUpdate = {},
-            onA11yComponentNameUpdate = {}
+            onA11yComponentNameUpdate = {},
+            onNavigateUp = {}
         )
     }
 }

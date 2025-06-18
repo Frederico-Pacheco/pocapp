@@ -73,7 +73,7 @@ private fun NetworkRequestTile(
 
     PrefsItem(
         icon = { NetworkRequestStatusIcon(uiState) },
-        text = { Text("Request Wi-Fi Connection") },
+        text = { Text("Request Wi-Fi connection") },
         secondaryText = { Text(secondaryText) },
         trailing = {
             NetworkRequestActionIcon(uiState, onUiEvent, onA11yStateCheck)

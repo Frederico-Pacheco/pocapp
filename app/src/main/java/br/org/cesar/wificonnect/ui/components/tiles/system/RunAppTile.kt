@@ -43,7 +43,7 @@ private fun RunAppTile(
 
     PrefsItem(
         icon = { RunAppStatusIcon(uiState) },
-        text = { Text("Re-run The Last App") },
+        text = { Text("Re-run the last app") },
         secondaryText = { Text(secondaryText) },
         trailing = {
             RunIconButton(

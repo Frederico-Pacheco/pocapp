@@ -7,6 +7,9 @@ sealed interface AppNavDestination {
     data object Root : AppNavDestination
 
     @Serializable
+    data object Main : AppNavDestination
+
+    @Serializable
     data object UseCaseList : AppNavDestination
 
     @Serializable

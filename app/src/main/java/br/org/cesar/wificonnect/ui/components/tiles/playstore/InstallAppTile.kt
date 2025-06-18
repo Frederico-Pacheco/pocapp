@@ -63,7 +63,7 @@ private fun InstallAppTile(
 
     PrefsItem(
         icon = { InstallAppStatusIcon(uiState) },
-        text = { Text("Install App") },
+        text = { Text("Install app") },
         secondaryText = { Text(secondaryText) },
         trailing = {
             RunIconButton(

@@ -45,7 +45,7 @@ private fun NetworkSignalTile(
 
     PrefsItem(
         icon = { NetworkSignalStatusIcon(uiState) },
-        text = { Text("Measure Mobile Network Signal") },
+        text = { Text("Measure mobile network signal") },
         secondaryText = { Text("") },
         trailing = { NetworkSignalActionIcon(uiState, onUiEvent) }
     )
