@@ -56,10 +56,11 @@ class ReRunAppViewModel @Inject constructor(
     fun onUiEvent(event: ReRunAppUiEvent) {
         when (event) {
             is ReRunAppUiEvent.UseCaseInitialize -> initUseCase()
-            is ReRunAppUiEvent.AppRunningStateChanged -> updateState(isRunning = event.isRunning)
             is ReRunAppUiEvent.UpdateAppIntent -> updateLastAppIntent(event.callback)
             is ReRunAppUiEvent.UpdateA11yComponentName -> updateState(a11yServiceComponentName = event.componentName)
             is ReRunAppUiEvent.CheckA11yState -> updateA11yState(event.contentResolver)
+            is ReRunAppUiEvent.UseCaseStatusChanged -> updateUseCaseStatus(event.useCaseStatus)
+            is ReRunAppUiEvent.UseCaseRunningStateChanged -> updateUseCaseRunningState(event.isRunning)
         }
     }
 
@@ -105,6 +106,22 @@ class ReRunAppViewModel @Inject constructor(
                 }
             )
         }
+    }
+
+    private fun updateUseCaseStatus(useCaseStatus: UseCaseStatus) {
+        if (UseCaseStatus.SUCCESS == useCaseStatus) {
+            mUseCaseListener.onUseCaseSuccess()
+        } else if (UseCaseStatus.ERROR == useCaseStatus) {
+            mUseCaseListener.onUseCaseFailed("Failed to run app")
+        }
+    }
+
+    private fun updateUseCaseRunningState(isRunning: Boolean) {
+        if (isRunning && !uiState.value.isRunning) {
+            mInstallAppUseCase.clearResult()
+        }
+
+        updateState(isRunning = isRunning)
     }
 
     private fun initUseCase() {

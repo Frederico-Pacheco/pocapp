@@ -65,6 +65,12 @@ class InstallAppUseCase @Inject constructor(
         }
     }
 
+    fun clearResult() {
+        _state.update { currentState ->
+            currentState.copy(durationMillis = null)
+        }
+    }
+
     private fun onInstall(callback: () -> Unit) {
         val startTime = System.currentTimeMillis()
         useCaseListener?.onUseCaseMsgReceived("Installing app: $pkgName")

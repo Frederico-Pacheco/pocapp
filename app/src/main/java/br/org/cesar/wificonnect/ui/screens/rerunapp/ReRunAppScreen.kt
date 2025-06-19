@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,12 +34,15 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.coroutineScope
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import br.org.cesar.wificonnect.service.PocAccessibilityService
 import br.org.cesar.wificonnect.ui.components.PrefsItem
 import br.org.cesar.wificonnect.ui.components.RunIconButton
 import br.org.cesar.wificonnect.ui.navigation.NavManager
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ReRunAppScreenRoot(
@@ -63,6 +68,7 @@ private fun ReRunAppScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
+    val isLaunched = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         onUiEvent(
@@ -78,9 +84,15 @@ private fun ReRunAppScreen(
                 onUiEvent(ReRunAppUiEvent.CheckA11yState(context.contentResolver))
                 onUiEvent(
                     ReRunAppUiEvent.UpdateAppIntent { launchIntent ->
-                        if (launchIntent != null) {
-                            onUiEvent(ReRunAppUiEvent.AppRunningStateChanged(false))
+                        if (launchIntent != null && !isLaunched.value) {
+                            onUiEvent(ReRunAppUiEvent.UseCaseStatusChanged(UseCaseStatus.SUCCESS))
                             context.startActivity(launchIntent)
+
+                            val coroutineScope = lifecycleOwner.lifecycle.coroutineScope
+                            coroutineScope.launch {
+                                delay(1000)
+                                isLaunched.value = true
+                            }
                         }
                     }
                 )
@@ -170,7 +182,7 @@ private fun installApp(
     onUiEvent(ReRunAppUiEvent.UseCaseInitialize)
 
     if (uiState.isA11yEnabled == true) {
-        onUiEvent(ReRunAppUiEvent.AppRunningStateChanged(true))
+        onUiEvent(ReRunAppUiEvent.UseCaseRunningStateChanged(true))
         uiState.packageName?.let { packageName ->
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 data = "market://details?id=${packageName}".toUri()

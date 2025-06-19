@@ -12,14 +12,18 @@ class AccessibilityServiceUseCase {
         ): Boolean? {
             var isEnabled: Boolean? = null
 
-            val enabledServicesSetting = Settings.Secure.getString(
+            val enabledServicesSettings = Settings.Secure.getString(
                 resolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-            )
+            ).split(":")
 
-            enabledServicesSetting?.let { serviceName ->
+            for (serviceName in enabledServicesSettings) {
                 val componentName = ComponentName.unflattenFromString(serviceName)
                 isEnabled = (componentName != null && componentName == expectedComponentName)
+
+                if (isEnabled == true) {
+                    break
+                }
             }
 
             return isEnabled
