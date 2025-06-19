@@ -64,7 +64,7 @@ private fun MainScreen(
                 PrefsItem(
                     text = {
                         Text(
-                            text = "Re-run app",
+                            text = "Install app and re-run PlayStore",
                             modifier = Modifier.clickable { onNavigateToReRunApp() }
                         )
                     },

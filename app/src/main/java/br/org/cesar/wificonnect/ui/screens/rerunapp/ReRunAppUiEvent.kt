@@ -12,13 +12,9 @@ sealed class ReRunAppUiEvent {
 
     data object UseCaseInitialize : ReRunAppUiEvent()
 
-    data class UseCaseRunningStateChanged(
-        val isRunning: Boolean
-    ) : ReRunAppUiEvent()
+    data class UseCaseRunningStateChanged(val isRunning: Boolean) : ReRunAppUiEvent()
 
-    data class UseCaseStatusChanged(
-        val useCaseStatus: UseCaseStatus
-    ) : ReRunAppUiEvent()
+    data class UseCaseStatusChanged(val useCaseStatus: UseCaseStatus) : ReRunAppUiEvent()
 
     data class UpdateAppIntent(val callback: (Intent?) -> Unit) : ReRunAppUiEvent()
 }

@@ -134,7 +134,7 @@ private fun ReRunAppScreen(
             ) {
                 PrefsItem(
                     icon = { RunAppStatusIcon(uiState) },
-                    text = { Text("Re-run The Last App") },
+                    text = { Text("Install app and re-run PlayStore") },
                     secondaryText = { Text(secondaryText) },
                     trailing = {
                         RunIconButton(

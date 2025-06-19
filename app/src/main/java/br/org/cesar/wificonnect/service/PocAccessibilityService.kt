@@ -3,6 +3,7 @@ package br.org.cesar.wificonnect.service
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import br.org.cesar.wificonnect.domain.usecase.instagram.ScrollReelsUseCase
 import br.org.cesar.wificonnect.domain.usecase.playstore.InstallAppUseCase
 import br.org.cesar.wificonnect.domain.usecase.system.RunAppUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,6 +17,9 @@ class PocAccessibilityService : AccessibilityService() {
     @Inject
     lateinit var mRunAppUseCase: RunAppUseCase
 
+    @Inject
+    lateinit var mScrollReelsUseCase: ScrollReelsUseCase
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
@@ -25,6 +29,8 @@ class PocAccessibilityService : AccessibilityService() {
             "com.android.settings" -> startEvent(event, ::handleSettingsUiPopup)
 
             "com.android.vending" -> startEvent(event, ::handlePlayStoreUi)
+
+            "com.instagram.android" -> startEvent(event, ::handleInstagramUi)
         }
     }
 
@@ -58,6 +64,10 @@ class PocAccessibilityService : AccessibilityService() {
         mInstallAppUseCase.handlePlayStoreUi(rootNode) {
             performGlobalAction(GLOBAL_ACTION_BACK)
         }
+    }
+
+    private fun handleInstagramUi(rootNode: AccessibilityNodeInfo?) {
+        mScrollReelsUseCase.handleInstagramUi(rootNode)
     }
 
     companion object {

@@ -12,16 +12,16 @@ import br.org.cesar.wificonnect.ui.components.RunIconButton
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
 @Composable
-fun ListReelsTileRoot(
+fun ScrollReelsTileRoot(
     onA11yStateCheck: () -> Boolean?,
 ) {
-    ListReelsTile(
+    ScrollReelsTile(
         onA11yStateCheck = onA11yStateCheck
     )
 }
 
 @Composable
-private fun ListReelsTile(
+private fun ScrollReelsTile(
     onA11yStateCheck: () -> Boolean?,
 ) {
     val context = LocalContext.current
@@ -38,7 +38,7 @@ private fun ListReelsTile(
                     if (isEnabled == true) {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            "instagram://user?username=natgeo".toUri()
+                            "instagram://reels_home".toUri()
                         )
                         intent.setPackage("com.instagram.android")
                         context.startActivity(intent)
@@ -51,10 +51,10 @@ private fun ListReelsTile(
 
 @Preview
 @Composable
-private fun ListReelsTilePreview() {
+private fun ScrollReelsTilePreview() {
     DesignSystemTheme {
         Surface {
-            ListReelsTile(
+            ScrollReelsTile(
                 onA11yStateCheck = { false }
             )
         }
