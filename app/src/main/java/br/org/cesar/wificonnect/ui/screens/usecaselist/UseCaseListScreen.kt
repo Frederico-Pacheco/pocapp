@@ -33,6 +33,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
 import br.org.cesar.wificonnect.service.PocAccessibilityService
+import br.org.cesar.wificonnect.ui.components.tiles.instagram.ListReelsTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal.NetworkSignalTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest.NetworkRequestTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.playstore.InstallAppTileRoot
@@ -128,6 +129,9 @@ fun UseCaseListScreen(
                 HorizontalDivider()
 
                 RunAppTileRoot()
+                HorizontalDivider()
+
+                ListReelsTileRoot(callbackA11yStateCheck)
             }
         }
     }
