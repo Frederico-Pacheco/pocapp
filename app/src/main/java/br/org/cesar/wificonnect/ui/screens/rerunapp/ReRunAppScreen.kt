@@ -78,7 +78,8 @@ private fun ReRunAppScreen(
                 onUiEvent(ReRunAppUiEvent.CheckA11yState(context.contentResolver))
                 onUiEvent(
                     ReRunAppUiEvent.UpdateAppIntent { launchIntent ->
-                        if (launchIntent != null && uiState.isRunning) {
+                        if (launchIntent != null) {
+                            onUiEvent(ReRunAppUiEvent.AppRunningStateChanged(false))
                             context.startActivity(launchIntent)
                         }
                     }

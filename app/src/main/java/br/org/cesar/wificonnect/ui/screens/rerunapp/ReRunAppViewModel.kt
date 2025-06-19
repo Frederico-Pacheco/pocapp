@@ -89,10 +89,6 @@ class ReRunAppViewModel @Inject constructor(
         mUseCaseListener.onUseCaseMsgReceived(appIntent?.component?.packageName ?: "NA")
 
         callback(appIntent)
-
-        if (appIntent != null) {
-            mUseCaseListener.onUseCaseSuccess()
-        }
     }
 
     private fun updateA11yState(
