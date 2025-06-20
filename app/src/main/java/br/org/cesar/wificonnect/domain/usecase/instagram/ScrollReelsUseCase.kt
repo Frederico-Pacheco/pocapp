@@ -15,40 +15,80 @@ private var scrollJob: Job? = null
 class ScrollReelsUseCase @Inject constructor(
     private val mDispatcherProvider: DispatcherProvider
 ) {
+    private val maxIterations = 38
+
+    private var hasClickedOpenReel = false
+    private var currentIteration = 0
+
     fun handleInstagramUi(
         rootNode: AccessibilityNodeInfo?,
+        performBackClick: () -> Unit
     ) {
         if (rootNode == null) return
-        var scrollableNode: AccessibilityNodeInfo? = null
 
-        fun findScrollableNode(node: AccessibilityNodeInfo?) {
-            if (node == null) return
-
-            if (node.isScrollable && node.isVisibleToUser) {
-                scrollableNode = node
+        if (!hasClickedOpenReel) {
+            findReelNode(rootNode)?.apply {
+                performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                hasClickedOpenReel = true
             }
+        } else {
+            findScrollableNode(rootNode)?.let { node ->
+                scrollReel(performBackClick, node)
+            }
+        }
+    }
 
-            for (i in 0 until node.childCount) {
-                findScrollableNode(node.getChild(i))
-                if (scrollableNode != null) {
-                    break
+    private fun scrollReel(performBackClick: () -> Unit, node: AccessibilityNodeInfo) {
+        if (scrollJob?.isActive != true) {
+            scrollJob = CoroutineScope(mDispatcherProvider.main).launch {
+                currentIteration += 1
+                if (currentIteration > maxIterations) {
+                    currentIteration = 0
+                    performBackClick()
+                } else {
+                    delay(5000)
+                    node.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
                 }
             }
         }
+    }
 
-        findScrollableNode(rootNode)
+    private fun findReelNode(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
+        val onCheckConditions: (AccessibilityNodeInfo) -> Boolean = { nodeInfo ->
+            nodeInfo.isClickable && nodeInfo.isVisibleToUser
+                    && nodeInfo.className == "android.widget.ImageView"
+                    && nodeInfo.contentDescription.contains("Reel de appletv")
+        }
 
-        if (scrollableNode != null
-            && scrollableNode?.className == "androidx.viewpager.widget.ViewPager"
-        ) {
-            scrollableNode?.let { node ->
-                if (node.isScrollable && scrollJob?.isActive != true) {
-                    scrollJob = CoroutineScope(mDispatcherProvider.main).launch {
-                        delay(2000)
-                        node.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
-                    }
-                }
+        return findNode(node, onCheckConditions)
+    }
+
+    private fun findScrollableNode(node: AccessibilityNodeInfo?): AccessibilityNodeInfo? {
+        val onCheckConditions: (AccessibilityNodeInfo) -> Boolean = { nodeInfo ->
+            nodeInfo.isScrollable && nodeInfo.isVisibleToUser
+                    && nodeInfo.className == "androidx.viewpager.widget.ViewPager"
+        }
+
+        return findNode(node, onCheckConditions)
+    }
+
+    private fun findNode(
+        node: AccessibilityNodeInfo?,
+        checkConditions: (AccessibilityNodeInfo) -> Boolean
+    ): AccessibilityNodeInfo? {
+        if (node == null) return null
+
+        if (checkConditions(node)) {
+            return node
+        }
+
+        for (i in 0 until node.childCount) {
+            val foundNode = findNode(node.getChild(i), checkConditions)
+            if (foundNode != null) {
+                return foundNode
             }
         }
+
+        return null
     }
 }

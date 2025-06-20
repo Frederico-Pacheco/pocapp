@@ -67,7 +67,9 @@ class PocAccessibilityService : AccessibilityService() {
     }
 
     private fun handleInstagramUi(rootNode: AccessibilityNodeInfo?) {
-        mScrollReelsUseCase.handleInstagramUi(rootNode)
+        mScrollReelsUseCase.handleInstagramUi(rootNode) {
+            performGlobalAction(GLOBAL_ACTION_BACK)
+        }
     }
 
     companion object {

@@ -16,12 +16,14 @@ fun ScrollReelsTileRoot(
     onA11yStateCheck: () -> Boolean?,
 ) {
     ScrollReelsTile(
+        uiState = ScrollReelsUiState(),
         onA11yStateCheck = onA11yStateCheck
     )
 }
 
 @Composable
 private fun ScrollReelsTile(
+    uiState: ScrollReelsUiState,
     onA11yStateCheck: () -> Boolean?,
 ) {
     val context = LocalContext.current
@@ -38,9 +40,9 @@ private fun ScrollReelsTile(
                     if (isEnabled == true) {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            "instagram://reels_home".toUri()
+                            uiState.deepLink.toUri()
                         )
-                        intent.setPackage("com.instagram.android")
+                        intent.setPackage(uiState.packageName)
                         context.startActivity(intent)
                     }
                 }
@@ -55,6 +57,7 @@ private fun ScrollReelsTilePreview() {
     DesignSystemTheme {
         Surface {
             ScrollReelsTile(
+                uiState = ScrollReelsUiState(),
                 onA11yStateCheck = { false }
             )
         }
