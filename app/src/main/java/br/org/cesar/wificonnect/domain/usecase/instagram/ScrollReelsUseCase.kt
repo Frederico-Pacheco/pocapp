@@ -15,8 +15,12 @@ private var scrollJob: Job? = null
 class ScrollReelsUseCase @Inject constructor(
     private val mDispatcherProvider: DispatcherProvider
 ) {
+    private val maxIterations = 38
+    private var currentIteration = 0
+
     fun handleInstagramUi(
         rootNode: AccessibilityNodeInfo?,
+        performBackClick: () -> Unit
     ) {
         if (rootNode == null) return
         var scrollableNode: AccessibilityNodeInfo? = null
@@ -44,8 +48,14 @@ class ScrollReelsUseCase @Inject constructor(
             scrollableNode?.let { node ->
                 if (node.isScrollable && scrollJob?.isActive != true) {
                     scrollJob = CoroutineScope(mDispatcherProvider.main).launch {
-                        delay(2000)
-                        node.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                        currentIteration += 1
+                        if (currentIteration > maxIterations) {
+                            currentIteration = 0
+                            performBackClick()
+                        } else {
+                            delay(5000)
+                            node.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                        }
                     }
                 }
             }
