@@ -36,6 +36,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import br.org.cesar.wificonnect.data.local.mapper.UseCaseRouteMap
 import br.org.cesar.wificonnect.data.service.PocAccessibilityService
+import br.org.cesar.wificonnect.ui.components.tiles.dialer.incoming.DialerIncomingCallTileRoot
+import br.org.cesar.wificonnect.ui.components.tiles.dialer.outgoing.DialerOutgoingCallTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.instagram.ScrollReelsTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal.NetworkSignalTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest.NetworkRequestTileRoot
@@ -100,12 +102,18 @@ fun UseCaseListScreen(
     }
 
     val tiles: List<@Composable () -> Unit> = listOf(
-        { NetworkRequestTileRoot(callbackA11yStateCheck, routes.networkRequestRoute, { permissions.addAll(it) }) },
+        {
+            NetworkRequestTileRoot(
+                callbackA11yStateCheck, routes.networkRequestRoute
+            ) { permissions.addAll(it) }
+        },
         { InstallAppTileRoot(callbackA11yStateCheck, routes.playStoreInstallRoute) },
-        { NetworkSignalTileRoot({ permissions.addAll(it) }) },
+        { NetworkSignalTileRoot { permissions.addAll(it) } },
         { RunAppTileRoot() },
         { ScrollReelsTileRoot(callbackA11yStateCheck) },
         { WeChatTileRoot(callbackA11yStateCheck) },
+        { DialerIncomingCallTileRoot() },
+        { DialerOutgoingCallTileRoot() },
     )
 
     Scaffold(
@@ -127,6 +135,7 @@ fun UseCaseListScreen(
         Box(
             Modifier.padding(innerPadding)
         ) {
+
             Column(
                 Modifier
                     .fillMaxSize()
