@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.SettingsAccessibility
@@ -15,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -33,6 +36,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
 import br.org.cesar.wificonnect.service.PocAccessibilityService
+import br.org.cesar.wificonnect.ui.components.tiles.dialer.incoming.DialerIncomingCallTileRoot
+import br.org.cesar.wificonnect.ui.components.tiles.dialer.outgoing.DialerOutgoingCallTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.instagram.ScrollReelsTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal.NetworkSignalTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest.NetworkRequestTileRoot
@@ -94,6 +99,16 @@ fun UseCaseListScreen(
         }
     }
 
+    val tiles: List<@Composable () -> Unit> = listOf(
+        { NetworkRequestTileRoot(callbackA11yStateCheck, routes.networkRequestRoute) },
+        { InstallAppTileRoot(callbackA11yStateCheck, routes.playStoreInstallRoute) },
+        { NetworkSignalTileRoot() },
+        { RunAppTileRoot() },
+        { ScrollReelsTileRoot(callbackA11yStateCheck) },
+        { DialerIncomingCallTileRoot() },
+        { DialerOutgoingCallTileRoot() },
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -113,25 +128,20 @@ fun UseCaseListScreen(
         Box(
             Modifier.padding(innerPadding)
         ) {
+
             Column(
                 Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                NetworkRequestTileRoot(callbackA11yStateCheck, routes.networkRequestRoute)
-                HorizontalDivider()
-
-                InstallAppTileRoot(callbackA11yStateCheck, routes.playStoreInstallRoute)
-                HorizontalDivider()
-
-                NetworkSignalTileRoot()
-                HorizontalDivider()
-
-                RunAppTileRoot()
-                HorizontalDivider()
-
-                ScrollReelsTileRoot(callbackA11yStateCheck)
+                tiles.forEachIndexed { index, tileComposable ->
+                    tileComposable()
+                    if (index < tiles.size - 1) {
+                        HorizontalDivider()
+                    }
+                }
             }
         }
     }
@@ -156,7 +166,7 @@ private fun UseCaseListActions(
                 tint = if (uiState.isA11yEnabled == true) {
                     Color.Green
                 } else {
-                    androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                    MaterialTheme.colorScheme.onSurface
                 },
             )
 

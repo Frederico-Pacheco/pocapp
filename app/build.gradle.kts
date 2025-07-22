@@ -19,6 +19,7 @@ val wifiSsid: String = localProperties.getProperty("wifi.ssid")
 val wifiPsk: String = localProperties.getProperty("wifi.pks")
 val appPkg: String = localProperties.getProperty("app.pkg")
 val appCompany: String = localProperties.getProperty("app.company")
+val phoneNumber: String = localProperties.getProperty("phone.number")
 
 android {
     namespace = "br.org.cesar.wificonnect"
@@ -37,6 +38,7 @@ android {
         buildConfigField("String", "WIFI_PKS", "\"$wifiPsk\"")
         buildConfigField("String", "APP_PKG", "\"$appPkg\"")
         buildConfigField("String", "APP_COMPANY", "\"$appCompany\"")
+        buildConfigField("String", "PHONE_NUMBER", "\"$phoneNumber\"")
     }
 
     buildTypes {
