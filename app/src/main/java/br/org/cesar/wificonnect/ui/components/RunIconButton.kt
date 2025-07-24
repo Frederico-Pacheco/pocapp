@@ -11,9 +11,11 @@ import androidx.compose.runtime.Composable
 fun RunIconButton(
     isRunning: Boolean,
     onClick: () -> Unit,
+    enabled: Boolean = true
 ) {
     IconButton(
-        onClick = onClick
+        onClick = onClick,
+        enabled = enabled
     ) {
         if (isRunning) {
             CircularProgressIndicator()
