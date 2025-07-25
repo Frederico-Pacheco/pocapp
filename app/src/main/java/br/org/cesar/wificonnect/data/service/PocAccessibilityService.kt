@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.service
+package br.org.cesar.wificonnect.data.service
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent

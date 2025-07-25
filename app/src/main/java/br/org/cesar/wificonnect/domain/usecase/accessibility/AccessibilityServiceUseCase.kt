@@ -15,7 +15,7 @@ class AccessibilityServiceUseCase {
             val enabledServicesSettings = Settings.Secure.getString(
                 resolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-            ).split(":")
+            )?.split(":") ?: listOf()
 
             for (serviceName in enabledServicesSettings) {
                 val componentName = ComponentName.unflattenFromString(serviceName)

@@ -40,7 +40,7 @@
         </activity>
 
         <service
-            android:name=".service.PocAccessibilityService"
+            android:name=".data.service.PocAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="true">
             <intent-filter>
@@ -52,7 +52,7 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <receiver android:name=".receiver.UseCaseReceiver"
+        <receiver android:name=".data.receiver.UseCaseReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
