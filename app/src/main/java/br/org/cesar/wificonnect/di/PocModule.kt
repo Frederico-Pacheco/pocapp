@@ -19,7 +19,7 @@ class PocModule {
     @Provides
     @Singleton
     fun provideConnectivityManager(@ApplicationContext context: Context): ConnectivityManager {
-        return context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return context.applicationContext.getSystemService(ConnectivityManager::class.java)
     }
 
     @Provides
@@ -31,12 +31,12 @@ class PocModule {
     @Provides
     @Singleton
     fun provideTelephonyManager(@ApplicationContext context: Context): TelephonyManager {
-        return context.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        return context.applicationContext.getSystemService(TelephonyManager::class.java)
     }
 
     @Provides
     @Singleton
     fun provideWifiManager(@ApplicationContext context: Context): WifiManager {
-        return context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        return context.applicationContext.getSystemService(WifiManager::class.java)
     }
 }

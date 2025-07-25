@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.receiver
+package br.org.cesar.wificonnect.data.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context

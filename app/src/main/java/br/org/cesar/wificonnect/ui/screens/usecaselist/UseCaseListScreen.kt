@@ -32,7 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
-import br.org.cesar.wificonnect.service.PocAccessibilityService
+import br.org.cesar.wificonnect.data.service.PocAccessibilityService
 import br.org.cesar.wificonnect.ui.components.tiles.instagram.ScrollReelsTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal.NetworkSignalTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest.NetworkRequestTileRoot
@@ -94,6 +94,14 @@ fun UseCaseListScreen(
         }
     }
 
+    val tiles: List<@Composable () -> Unit> = listOf(
+        { NetworkRequestTileRoot(callbackA11yStateCheck, routes.networkRequestRoute) },
+        { InstallAppTileRoot(callbackA11yStateCheck, routes.playStoreInstallRoute) },
+        { NetworkSignalTileRoot() },
+        { RunAppTileRoot() },
+        { ScrollReelsTileRoot(callbackA11yStateCheck) },
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -119,19 +127,12 @@ fun UseCaseListScreen(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                NetworkRequestTileRoot(callbackA11yStateCheck, routes.networkRequestRoute)
-                HorizontalDivider()
-
-                InstallAppTileRoot(callbackA11yStateCheck, routes.playStoreInstallRoute)
-                HorizontalDivider()
-
-                NetworkSignalTileRoot()
-                HorizontalDivider()
-
-                RunAppTileRoot()
-                HorizontalDivider()
-
-                ScrollReelsTileRoot(callbackA11yStateCheck)
+                tiles.forEachIndexed { index, tileComposable ->
+                    tileComposable()
+                    if (index < tiles.size - 1) {
+                        HorizontalDivider()
+                    }
+                }
             }
         }
     }

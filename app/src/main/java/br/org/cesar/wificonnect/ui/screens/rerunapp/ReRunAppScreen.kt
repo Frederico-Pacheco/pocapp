@@ -36,7 +36,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.coroutineScope
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
-import br.org.cesar.wificonnect.service.PocAccessibilityService
+import br.org.cesar.wificonnect.data.service.PocAccessibilityService
 import br.org.cesar.wificonnect.ui.components.PrefsItem
 import br.org.cesar.wificonnect.ui.components.RunIconButton
 import br.org.cesar.wificonnect.ui.navigation.NavManager
