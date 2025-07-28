@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.SettingsAccessibility
@@ -38,6 +40,7 @@ import br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal.Network
 import br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest.NetworkRequestTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.playstore.InstallAppTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.system.RunAppTileRoot
+import br.org.cesar.wificonnect.ui.components.tiles.wechat.WeChatTileRoot
 import br.org.cesar.wificonnect.ui.navigation.NavManager
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
@@ -100,6 +103,7 @@ fun UseCaseListScreen(
         { NetworkSignalTileRoot() },
         { RunAppTileRoot() },
         { ScrollReelsTileRoot(callbackA11yStateCheck) },
+        { WeChatTileRoot(callbackA11yStateCheck) },
     )
 
     Scaffold(
@@ -124,7 +128,8 @@ fun UseCaseListScreen(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 tiles.forEachIndexed { index, tileComposable ->

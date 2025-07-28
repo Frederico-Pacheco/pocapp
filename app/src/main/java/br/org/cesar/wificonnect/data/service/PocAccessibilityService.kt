@@ -1,12 +1,19 @@
 package br.org.cesar.wificonnect.data.service
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import br.org.cesar.wificonnect.domain.usecase.instagram.ScrollReelsUseCase
 import br.org.cesar.wificonnect.domain.usecase.playstore.InstallAppUseCase
 import br.org.cesar.wificonnect.domain.usecase.system.RunAppUseCase
+import br.org.cesar.wificonnect.domain.usecase.wechat.WeChatUseCase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -20,6 +27,9 @@ class PocAccessibilityService : AccessibilityService() {
     @Inject
     lateinit var mScrollReelsUseCase: ScrollReelsUseCase
 
+    @Inject
+    lateinit var mWeChatUseCase: WeChatUseCase
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
@@ -31,6 +41,8 @@ class PocAccessibilityService : AccessibilityService() {
             "com.android.vending" -> startEvent(event, ::handlePlayStoreUi)
 
             "com.instagram.android" -> startEvent(event, ::handleInstagramUi)
+
+            "com.tencent.mm" -> startEvent(event, ::handleWeChatUi)
         }
     }
 
@@ -70,6 +82,38 @@ class PocAccessibilityService : AccessibilityService() {
         mScrollReelsUseCase.handleInstagramUi(rootNode) {
             performGlobalAction(GLOBAL_ACTION_BACK)
         }
+    }
+
+    private fun handleWeChatUi(rootNode: AccessibilityNodeInfo?) {
+        if (mWeChatUseCase.press == 0) {
+            mWeChatUseCase.press = 1
+
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(2000)
+                doGesture(mWeChatUseCase.tapOnFirstChat())
+
+                delay(5000)
+                doGesture(mWeChatUseCase.tapOnMoreButton())
+
+                delay(5000)
+                doGesture(mWeChatUseCase.tapOnVideoCall())
+            }
+        }
+
+    }
+
+    private fun doGesture(gesture: GestureDescription) {
+        dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription) {
+                super.onCompleted(gestureDescription)
+                Log.d(TAG, "Gesture completed")
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription) {
+                super.onCancelled(gestureDescription)
+                Log.d(TAG, "Gesture cancelled")
+            }
+        }, null)
     }
 
     companion object {
