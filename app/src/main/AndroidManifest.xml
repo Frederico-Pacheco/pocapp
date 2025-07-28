@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <queries>
         <package android:name="com.apple.atve.androidtv.appletv" />
@@ -61,5 +62,9 @@
             </intent-filter>
         </receiver>
     </application>
+
+    <queries>
+        <package android:name="com.tencent.mm" />
+    </queries>
 
 </manifest>

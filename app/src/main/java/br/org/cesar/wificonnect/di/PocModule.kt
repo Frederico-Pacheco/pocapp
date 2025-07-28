@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.telephony.TelephonyManager
+import android.view.WindowManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,5 +39,11 @@ class PocModule {
     @Singleton
     fun provideWifiManager(@ApplicationContext context: Context): WifiManager {
         return context.applicationContext.getSystemService(WifiManager::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWindowManager(@ApplicationContext context: Context): WindowManager {
+        return context.applicationContext.getSystemService(WindowManager::class.java)
     }
 }
