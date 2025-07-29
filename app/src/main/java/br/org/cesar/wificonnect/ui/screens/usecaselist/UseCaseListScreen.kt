@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -33,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
+import br.org.cesar.wificonnect.data.local.mapper.UseCaseRouteMap
 import br.org.cesar.wificonnect.data.service.PocAccessibilityService
 import br.org.cesar.wificonnect.ui.components.tiles.instagram.ScrollReelsTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.network.mobilesignal.NetworkSignalTileRoot
@@ -73,6 +74,7 @@ fun UseCaseListScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
+    val permissions = mutableListOf<String>()
 
     onA11yComponentNameUpdate(
         ComponentName(context, PocAccessibilityService::class.java)
@@ -98,9 +100,9 @@ fun UseCaseListScreen(
     }
 
     val tiles: List<@Composable () -> Unit> = listOf(
-        { NetworkRequestTileRoot(callbackA11yStateCheck, routes.networkRequestRoute) },
+        { NetworkRequestTileRoot(callbackA11yStateCheck, routes.networkRequestRoute, { permissions.addAll(it) }) },
         { InstallAppTileRoot(callbackA11yStateCheck, routes.playStoreInstallRoute) },
-        { NetworkSignalTileRoot() },
+        { NetworkSignalTileRoot({ permissions.addAll(it) }) },
         { RunAppTileRoot() },
         { ScrollReelsTileRoot(callbackA11yStateCheck) },
         { WeChatTileRoot(callbackA11yStateCheck) },
@@ -162,7 +164,7 @@ private fun UseCaseListActions(
                 tint = if (uiState.isA11yEnabled == true) {
                     Color.Green
                 } else {
-                    androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                    MaterialTheme.colorScheme.onSurface
                 },
             )
 

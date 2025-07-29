@@ -4,7 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import br.org.cesar.wificonnect.data.local.UseCaseRouteMap
+import br.org.cesar.wificonnect.data.local.mapper.UseCaseRouteMap
 import br.org.cesar.wificonnect.ui.screens.MainScreenRoot
 import br.org.cesar.wificonnect.ui.screens.rerunapp.ReRunAppScreenRoot
 import br.org.cesar.wificonnect.ui.screens.usecaselist.UseCaseListScreenRoot

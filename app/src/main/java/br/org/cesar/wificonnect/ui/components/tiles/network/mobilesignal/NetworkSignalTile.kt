@@ -20,9 +20,14 @@ import br.org.cesar.wificonnect.ui.components.RunIconButton
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
 @Composable
-fun NetworkSignalTileRoot() {
+fun NetworkSignalTileRoot(
+    permissions: (List<String>) -> Unit = {}
+) {
     val viewModel = hiltViewModel<NetworkSignalViewModel>()
     val uiState by viewModel.uiState.collectAsState()
+
+    val tilePermissions = listOf(Manifest.permission.READ_PHONE_STATE)
+    permissions(tilePermissions)
 
     NetworkSignalTile(
         uiState = uiState,
@@ -82,11 +87,7 @@ private fun NetworkSignalActionIcon(
 ) {
     RunIconButton(
         isRunning = uiState.isRunning,
-        onClick = {
-            if (!uiState.isRunning) {
-                onUiEvent(NetworkSignalUiEvent.MeasureNetworkSignal)
-            }
-        }
+        onClick = { onUiEvent(NetworkSignalUiEvent.MeasureNetworkSignal) }
     )
 }
 

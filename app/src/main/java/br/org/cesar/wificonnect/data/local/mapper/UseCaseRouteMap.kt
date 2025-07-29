@@ -1,4 +1,4 @@
-package br.org.cesar.wificonnect.data.local
+package br.org.cesar.wificonnect.data.local.mapper
 
 import br.org.cesar.wificonnect.ui.navigation.AppNavDestination
 

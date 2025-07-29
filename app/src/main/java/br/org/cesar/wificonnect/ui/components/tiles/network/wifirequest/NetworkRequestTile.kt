@@ -2,11 +2,7 @@ package br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.provider.Settings
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -20,10 +16,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.org.cesar.wificonnect.domain.usecase.UseCaseStatus
 import br.org.cesar.wificonnect.ui.components.PrefsItem
+import br.org.cesar.wificonnect.ui.components.RequestPermission
 import br.org.cesar.wificonnect.ui.components.RunIconButton
 import br.org.cesar.wificonnect.ui.navigation.AppNavDestination
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
@@ -32,9 +28,13 @@ import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 fun NetworkRequestTileRoot(
     onA11yStateCheck: () -> Boolean?,
     navRoute: AppNavDestination.NetworkRequest = AppNavDestination.NetworkRequest(),
+    permissions: (List<String>) -> Unit = {}
 ) {
     val viewModel = hiltViewModel<NetworkRequestViewModel>()
     val uiState by viewModel.uiState.collectAsState()
+
+    val tilePermissions = listOf(Manifest.permission.ACCESS_FINE_LOCATION)
+    permissions(tilePermissions)
 
     LaunchedEffect(Unit) {
         if (navRoute.autoRun) {
@@ -62,7 +62,13 @@ private fun NetworkRequestTile(
     onUiEvent: (NetworkRequestUiEvent) -> Unit,
     onA11yStateCheck: () -> Boolean?,
 ) {
-    RequestPermission(uiState, onUiEvent)
+    RequestPermission(
+        permission = Manifest.permission.ACCESS_FINE_LOCATION,
+        permissionStatus = uiState.permissionStatus,
+        onPermissionChange = { permissionStatus ->
+            onUiEvent(NetworkRequestUiEvent.UpdatePermissionStatus(permissionStatus))
+        }
+    )
     NetworkRequestSetup(uiState)
 
     val secondaryText = if (UseCaseStatus.SUCCESS != uiState.useCaseStatus) {
@@ -137,34 +143,6 @@ private fun NetworkRequestSetup(
         if (!uiState.isWifiEnabled) {
             val panelIntent = Intent(Settings.Panel.ACTION_WIFI)
             context.startActivity(panelIntent)
-        }
-    }
-}
-
-@Composable
-private fun RequestPermission(
-    uiState: NetworkRequestUiState,
-    onUiEvent: (NetworkRequestUiEvent) -> Unit
-) {
-    val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (!isGranted) {
-            Toast.makeText(context, "Permission denied!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        val permissionStatus = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        )
-        onUiEvent(NetworkRequestUiEvent.UpdatePermissionStatus(permissionStatus))
-    }
-
-    LaunchedEffect(uiState.permissionStatus) {
-        if (uiState.permissionStatus != PackageManager.PERMISSION_GRANTED) {
-            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 }
