@@ -1,9 +1,12 @@
 package br.org.cesar.wificonnect.di
 
+import android.app.KeyguardManager
+import android.app.role.RoleManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
+import android.telecom.TelecomManager
 import android.telephony.TelephonyManager
 import android.view.WindowManager
 import dagger.Module
@@ -25,8 +28,26 @@ class PocModule {
 
     @Provides
     @Singleton
+    fun provideKeyguardManager(@ApplicationContext context: Context): KeyguardManager {
+        return context.applicationContext.getSystemService(KeyguardManager::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun providePackageManager(@ApplicationContext context: Context): PackageManager {
         return context.applicationContext.packageManager
+    }
+
+    @Provides
+    @Singleton
+    fun provideRoleManager(@ApplicationContext context: Context): RoleManager {
+        return context.applicationContext.getSystemService(RoleManager::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTelecomManager(@ApplicationContext context: Context): TelecomManager {
+        return context.applicationContext.getSystemService(TelecomManager::class.java)
     }
 
     @Provides
