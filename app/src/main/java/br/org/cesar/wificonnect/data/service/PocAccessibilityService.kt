@@ -8,6 +8,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import br.org.cesar.wificonnect.domain.usecase.instagram.ScrollReelsUseCase
 import br.org.cesar.wificonnect.domain.usecase.playstore.InstallAppUseCase
 import br.org.cesar.wificonnect.domain.usecase.system.RunAppUseCase
+import br.org.cesar.wificonnect.domain.usecase.wechat.WeChatQrCodeUseCase
 import br.org.cesar.wificonnect.domain.usecase.wechat.WeChatUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,10 @@ class PocAccessibilityService : AccessibilityService() {
     @Inject
     lateinit var mWeChatUseCase: WeChatUseCase
 
+    @Inject
+    lateinit var mWeChatQrCodeUseCase: WeChatQrCodeUseCase
+
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
@@ -42,7 +47,7 @@ class PocAccessibilityService : AccessibilityService() {
 
             "com.instagram.android" -> startEvent(event, ::handleInstagramUi)
 
-            "com.tencent.mm" -> startEvent(event, ::handleWeChatUi)
+            "com.tencent.mm" -> startEvent(event, ::handleWeChatQrCodeUi)
         }
     }
 
@@ -100,6 +105,26 @@ class PocAccessibilityService : AccessibilityService() {
             }
         }
 
+    }
+
+    private fun handleWeChatQrCodeUi(rootNode: AccessibilityNodeInfo?) {
+        if (mWeChatQrCodeUseCase.press == 0) {
+            mWeChatQrCodeUseCase.press = 1
+
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(2000)
+                doGesture(mWeChatQrCodeUseCase.tapOnDiscoverButton())
+
+                delay(5000)
+                doGesture(mWeChatQrCodeUseCase.tapOnScanButton())
+
+                delay(5000)
+                doGesture(mWeChatQrCodeUseCase.tapOnAlbumButton())
+
+                delay(5000)
+                doGesture(mWeChatQrCodeUseCase.tapOnThirdAlbumItem())
+            }
+        }
     }
 
     private fun doGesture(gesture: GestureDescription) {
