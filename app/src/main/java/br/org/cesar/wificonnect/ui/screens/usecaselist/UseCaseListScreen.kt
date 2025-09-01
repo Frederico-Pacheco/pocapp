@@ -44,6 +44,7 @@ import br.org.cesar.wificonnect.ui.components.tiles.network.wifirequest.NetworkR
 import br.org.cesar.wificonnect.ui.components.tiles.playstore.InstallAppTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.system.RunAppTileRoot
 import br.org.cesar.wificonnect.ui.components.tiles.wechat.WeChatTileRoot
+import br.org.cesar.wificonnect.ui.components.tiles.wechat.qrcode.WeChatQrCodeTileRoot
 import br.org.cesar.wificonnect.ui.navigation.NavManager
 import br.org.cesar.wificonnect.ui.theme.DesignSystemTheme
 
@@ -112,6 +113,7 @@ fun UseCaseListScreen(
         { RunAppTileRoot() },
         { ScrollReelsTileRoot(callbackA11yStateCheck) },
         { WeChatTileRoot(callbackA11yStateCheck) },
+        { WeChatQrCodeTileRoot(callbackA11yStateCheck) },
         { DialerIncomingCallTileRoot() },
         { DialerOutgoingCallTileRoot() },
     )
